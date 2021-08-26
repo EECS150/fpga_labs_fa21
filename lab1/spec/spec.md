@@ -167,45 +167,56 @@ For the labs in this class, we will be using the Xilinx PYNQ-Z1 development boar
 Our development board is a printed circuit board that contains a Zynq-7000 System-on-Chip (SoC) along with a host of peripheral ICs and connections.
 The development board makes it easy to program the FPGA and allows us to experiment with different peripherals.
 
-The best [reference for this board](https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual) is provided by Digilent.
-Browse the documentation there to get a feel for both what features the board has and, more importantly, what information the documentation has, should you need it later.
+**Skim through** the [reference documentation for this board](https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual).
 
-Being a development board, the silkscreen print clearly identifies connectors of interest. You should be able to recognize the most basic IO features on the board: GPIO LEDs, slide switches, and push-buttons. You should also be familiar with other basic elements of the board: input power socket, power switch, and the USB programming port. The following image identifies important parts of the board that may not have been obvious:
+**Idenfity** the IO features on the board: GPIO LEDs, slide switches, and push-buttons.
 
-\begin{minipage}[h]{0.5\textwidth}
-    \includegraphics[width=\textwidth]{figs/z1_top_annotated.png}
-\end{minipage}
-\begin{minipage}[h]{0.5\textwidth}
-    \includegraphics[width=\textwidth]{figs/z1_bottom_annotated.png}
-\end{minipage}
+**Identify** the input power socket, power switch, and the USB programming port.
 
-\begin{enumerate}
-  \item Z-7020 System-on-Chip (SoC) of the Zynq-7000 SoC family. It comprises a hardened dual-core ARM processor and the Xilinx FPGA xc7z020clg400-1. The SoC connects to the peripheral ICs and I/O connectors via PCB traces.
-  \item ISSI 512MB off-chip DRAM.
-  \item Power source jumper: shorting "REG" has the board use the external power adapter as a power source; shorting "USB" has it rely on the 5 V provided by USB. The latter will work unless your design needs to power a lot of external peripherals.
-  \item Programming mode jumper to select how we want to use the ARM processor. There are two available modes: Operating-System mode (booting Linux from SD card) or Bare-metal mode. Since we are not using the ARM processor, we avoid this for now.
-  \item SD card slot for inserting an SD card to boot Linux. Since we are not using the ARM processor, we avoid this for now.
-\end{enumerate}
+#### Board Features
+Here are some highlighted features of the PYNQ-Z1 board.
+<table border=0>
+<tr>
+    <td>
+        <img src="./figs/z1_top_annotated.png" width=400 />
+        <p align=center>Top of PYNQ-Z1 board</p>
+    </td>
+    <td>
+          <img src="./figs/z1_bottom_annotated.png" width=400 />
+          <p align=center>Bottom of PYNQ-Z1 board</p>
+    </td>
+</tr>
+</table>
 
-\subsection{The FPGA - xc7z020clg400-1}
+1. Z-7020 System-on-Chip (SoC) of the Zynq-7000 SoC family. It comprises a hardened dual-core ARM processor and the Xilinx FPGA xc7z020clg400-1. The SoC connects to the peripheral ICs and I/O connectors via PCB traces.
+1. ISSI 512MB off-chip DRAM.
+1. Power source jumper: shorting "REG" has the board use the external power adapter as a power source; shorting "USB" has it rely on the 5 V provided by USB. The latter will work unless your design needs to power a lot of external peripherals.
+1. Programming mode jumper to select how we want to use the ARM processor. There are two available modes: Operating-System mode (booting Linux from SD card) or Bare-metal mode. Since we are not using the ARM processor, we avoid this for now.
+1. SD card slot for inserting an SD card to boot Linux. Since we are not using the ARM processor, we avoid this for now.
 
-xc7z020clg400-1 is the part ID of our FPGA. How should we interpret it? \texttt{xc7z020} is the part number which should help us to identify the specific device from a Xilinx FPGA family (in this case, it belongs to a Zynq family from the 7-series). \texttt{clg400} is the package number which defines how many package IO pins. \texttt{-1} is the speed grade.
+#### The FPGA - xc7z020clg400-1
+
+`xc7z020clg400-1` is the part ID of our FPGA. How should we interpret it?
+`xc7z020` is the part number which identifies a specific device from a Xilinx FPGA family (in this case, it belongs to a Zynq family from the 7-series).
+`clg400` is the package number which defines how many package IO pins.
+`-1` is the speed grade.
 
 Our FPGA is an Artix-7 Programmable Logic fabric which is a low-end 7-series Xilinx FPGA family (the mid-end and high-end of the 7-series are Kintex-7 and Virtex-7 families, respectively).
-To help you become familiar with the FPGA that you will be working with through the semester, please skim Chapter 21: Programmable Logic Description of the \href{https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf}{Technical Reference Manual} and Chapter 2 of the \href{http://www.xilinx.com/support/documentation/user_guides/ug474_7Series_CLB.pdf}{Xilinx 7-series Configurable Logic Block User Guide}.
-Pay particular attention to pages 15-25 on Slices and pages 40-42 on Multiplexers.
-Please also read \href{https://www.xilinx.com/support/documentation/selection-guides/zynq-7000-product-selection-guide.pdf}{Zynq-7000 Product Selection guide}. Pay attention to slide 2. Can you identify our chip?
 
-FPGA devices are usually attributed by their logic capacities. You should be aware of the device resource of your target FPGA when designing your digital circuit (it is unlike the software world where a CPU or GPU should be able to compile and run whatever code throwing at it regardless of the code size). Early FPGAs employ primitive blocks such as LUTs or FFs (Flip-flops) for logic implementation. Then the FPGA vendors started adding hardened blocks such as fast carry adders, block memories (BRAM) and Digital Signal Processing (DSP) slices onto FPGAs to augment their capability. The carry adder macros can implement fast arithmetic and comparison operations, the BRAMs provide fast on-chip storage, and the DSP slices are able to compute multipliers very efficiently, among many other operations. State-of-the-art FPGAs also incorporate floating-point calculation capability in those hardened blocks, thus greatly enhance the performance and expand their applicability. FPGA now has evolved to a competitive programmable platform, and there are many real-world applications that can be accelerated on the FPGAs, such as networking, wireless, biology, video/image processing, finance, or deep learning. The Zynq-7000 product line (which incorporates ARM processors next to a Programmable Logic -- as in the chip we are using right now) also provides a great platform for embedded applications.
+**Please skim through the following documents**:
+- Chapter 21: Programmable Logic Description of the [Technical Reference Manual](https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf)
+- Chapter 2 of the [Xilinx 7-series Configurable Logic Block User Guide](http://www.xilinx.com/support/documentation/user_guides/ug474_7Series_CLB.pdf).
+    - Pay attention to pages 15-25 on Slices and pages 40-42 on Multiplexers.
+- [Zynq-7000 Product Selection Guide](https://www.xilinx.com/support/documentation/selection-guides/zynq-7000-product-selection-guide.pdf)
+    - Pay attention to slide 2. Can you identify our chip?
 
-You will need to answer the following questions in your lab report. Hint: read the documents mentioned above carefully.
+<!-- FPGA devices are usually attributed by their logic capacities. You should be aware of the device resource of your target FPGA when designing your digital circuit (it is unlike the software world where a CPU or GPU should be able to compile and run whatever code throwing at it regardless of the code size). Early FPGAs employ primitive blocks such as LUTs or FFs (Flip-flops) for logic implementation. Then the FPGA vendors started adding hardened blocks such as fast carry adders, block memories (BRAM) and Digital Signal Processing (DSP) slices onto FPGAs to augment their capability. The carry adder macros can implement fast arithmetic and comparison operations, the BRAMs provide fast on-chip storage, and the DSP slices are able to compute multipliers very efficiently, among many other operations. State-of-the-art FPGAs also incorporate floating-point calculation capability in those hardened blocks, thus greatly enhance the performance and expand their applicability. FPGA now has evolved to a competitive programmable platform, and there are many real-world applications that can be accelerated on the FPGAs, such as networking, wireless, biology, video/image processing, finance, or deep learning. The Zynq-7000 product line (which incorporates ARM processors next to a Programmable Logic -- as in the chip we are using right now) also provides a great platform for embedded applications. -->
 
-\subsection{Your Task: Understanding your FPGA}\label{sec:fpgaQuestions}
-\begin{enumerate}
-  \item How many LUTs, FFs, Block RAMs (number of 36Kb blocks), and DSP slices are on the xc7z020 FPGA?
-  \item How many SLICEs are in a single CLB? What does each SLICE contain?
-  \item What is the difference between a SLICEL and a SLICEM?
-  \item How many inputs do each of the LUTs have?
-  \item How do you implement logic functions of 7 inputs in a single SLICEL? How about 8? Draw a high-level circuit diagram to show how the implementation would look. Be specific about the elements (LUTs, muxes) that are used.
-\end{enumerate}
+#### Your Task: Understanding your FPGA
+**Record your answers to these questions** (hint: look at the documents above)
+1. How many LUTs, FFs, Block RAMs (number of 36Kb blocks), and DSP slices are on the xc7z020 FPGA?
+1. How many SLICEs are in a single CLB? What does each SLICE contain?
+1. What is the difference between a SLICEL and a SLICEM?
+1. How many inputs do each of the LUTs have?
+1. How do you implement logic functions of 7 inputs in a single SLICEL? How about 8? Draw a high-level circuit diagram to show how the implementation would look. Be specific about the elements (LUTs, muxes) that are used.
 
