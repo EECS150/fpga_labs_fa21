@@ -34,7 +34,7 @@ Once the account has been created, you should email your class account form to y
 Log in to a workstation in the lab, using your `eecs151-xxx` login and initial password.
 
 #### Remotely
-The workstations used for this class are `c125m-1.eecs.berkeley.edu` - `c125m-19.eecs.berkeley.edu`, and are physically located in Cory 111/117.
+The workstations used for this class are `c111-1.eecs.berkeley.edu` - `c111-17.eecs.berkeley.edu`, and are physically located in Cory 111/117.
 Other servers such as `eda-1.eecs.berkeley.edu` through `eda-8.eecs.berkeley.edu` can be used for development too.
 You can access all of these machines remotely through SSH.
 
@@ -42,7 +42,7 @@ Not all lab workstations will necessarily be available at a given time, so try a
 
 Log in to a lab machine by SSHing with your class account `eecs151-xxx`.
 ```shell
-ssh eecs151-xxx@c125m-11.eecs.berkeley.edu
+ssh eecs151-xxx@c111-2.eecs.berkeley.edu
 ```
 
 ### Changing Your EECS151 Account Password
@@ -69,7 +69,7 @@ Keep hitting enter to use the default settings.
 
 - Copy your public key:
 ```
-cat ~/.ssh/id_rsa.pub
+cat ~/.ssh/id_ed25519.pub
 ```
 Copy the text that's printed out.
 
@@ -87,14 +87,15 @@ If you want to work on the labs directly from your laptop instead of via a works
 If you're using the lab machines from your laptop, here are a few more things to do.
 
 #### Use SSH Keys to Log In Without a Password
+Use the same instructions from above to generate a public/private key pair on your laptop.
 Run this from your laptop to copy your public key to the lab machine.
 ```shell
-ssh-copy-id eecs151-xxx@c125m-11.eecs.berkeley.edu
+ssh-copy-id eecs151-xxx@c111-2.eecs.berkeley.edu
 ```
 
 Now you should be able to ssh to the lab machine without providing a password.
 ```shell
-ssh eecs151-xxx@c125m-11.eecs.berkeley.edu
+ssh eecs151-xxx@c111-2.eecs.berkeley.edu
 ```
 
 #### Use X2go for a Remote Desktop
