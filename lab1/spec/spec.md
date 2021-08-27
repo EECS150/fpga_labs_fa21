@@ -214,7 +214,7 @@ Our FPGA is an Artix-7 Programmable Logic fabric which is a low-end 7-series Xil
 
 <!-- FPGA devices are usually attributed by their logic capacities. You should be aware of the device resource of your target FPGA when designing your digital circuit (it is unlike the software world where a CPU or GPU should be able to compile and run whatever code throwing at it regardless of the code size). Early FPGAs employ primitive blocks such as LUTs or FFs (Flip-flops) for logic implementation. Then the FPGA vendors started adding hardened blocks such as fast carry adders, block memories (BRAM) and Digital Signal Processing (DSP) slices onto FPGAs to augment their capability. The carry adder macros can implement fast arithmetic and comparison operations, the BRAMs provide fast on-chip storage, and the DSP slices are able to compute multipliers very efficiently, among many other operations. State-of-the-art FPGAs also incorporate floating-point calculation capability in those hardened blocks, thus greatly enhance the performance and expand their applicability. FPGA now has evolved to a competitive programmable platform, and there are many real-world applications that can be accelerated on the FPGAs, such as networking, wireless, biology, video/image processing, finance, or deep learning. The Zynq-7000 product line (which incorporates ARM processors next to a Programmable Logic -- as in the chip we are using right now) also provides a great platform for embedded applications. -->
 
-#### Your Task: Understanding your FPGA
+#### Understanding your FPGA
 **Record your answers to these questions** (hint: look at the documents above)
 1. How many LUTs, FFs, Block RAMs (number of 36Kb blocks), and DSP slices are on the xc7z020 FPGA?
 1. How many SLICEs are in a single CLB? What does each SLICE contain?
@@ -279,7 +279,7 @@ endmodule
 
 The `BUTTONS` input is a signal that is 4 bits wide (as indicated by the [3:0] width descriptor).
 This input comes from the push-buttons on the bottom right side of your Pynq-Z1 board.
-**Inspect your board** to find these switches and confirm that there are 4 of them.
+**Inspect your board** to find these buttons and confirm that there are 4 of them.
 
 The `SWITCHES` input, which is 2 bits wide (as indicated by the [1:0] descriptor), comes from the slide switches on the Pynq-Z1, located just to the left of the buttons (look for SW0 and SW1).
 
@@ -288,7 +288,6 @@ This output signal connectes to the bank of LEDs at the bottom right of the Pynq
 Almost. There are only 4 LEDs there; 2 more are tri-color LEDs located just above the slide switches in the middle.
 
 In this file, we can describe how the slide switches, push buttons and LEDs are connected through the FPGA. There is one line of code that describes an AND gate that takes the values of one of the buttons and one of the slide switches, ANDs them together, and sends that signal out to the first LED.
-
 
 ### Constraints
 Constraints files, such as `lab1/src/z1top.xdc`, attach metadata to the Verilog source using TCL commands that Vivado understands.
@@ -314,16 +313,89 @@ Note that `R14` is the name of an FPGA pin which connected to the `LED0` net on 
 <!-- Setting constraints is one of the most important steps in the FPGA development flow, especially if your circuit interfaces with the external world (receiving signals or sending signals via IO circuitry of the board). Please do not forget this step. You will not be able to generate a bitstream if you do not set the pin mapping to all the input/output signals of your top-level Verilog module; Vivado will complain and abort. More importantly, your FPGA design will not work properly if your pin assignment is wrong. A good practice is to check the documentation/schematic of your target FPGA device carefully of which IO peripheral maps to which pin, and the appropriate logic standard unless you can get the sample board constraint file from the vendor.  -->
 
 ### Synthesis
+If we have a Verilog source file, and device specific constraints, we can run synthesis with Vivado to convert the behavioral Verilog to a device-specific netlist which contains only FPGA primitives such as LUTs and IO buffers.
+We have provided a Makefile that automates calling Vivado.
 
-Let's put this digital circuit on the FPGA! In the next section, we will learn how to create a basic Vivado project, add our Verilog and constraint files, and generate a bitstream file to program our FPGA.
+Inside `fpga_labs_fa21/lab1` **run** `make setup`.
+This will generate a file `build/target.tcl` that sets some TCL variables that point to the Verilog sources and constraints in your design.
 
+Next **run** `make synth` which will synthesize `z1top.v` using Vivado.
+`make synth` calls Vivado and tells it to invoke the commands in the `fpga_labs_fa21/scripts/synth.tcl` file.
 
-\subsection{Set up your PYNQ-Z1}
-\begin{enumerate}
-  \item Plug in the power adaptor to power up the board.
-  \item Connect the USB interface to a spare USB port on your workstation. Make sure you have installed Digilent cable driver if you use Vivado locally on your own machine.
-  \item Turn the board on.
-\end{enumerate}
+In that file you will find Vivado TCL commands such as:
+```tcl
+synth_design -top ${TOP} -part ${FPGA_PART}
+write_checkpoint -force ${TOP}.dcp
+```
+These commands [are documented here](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2021_1/ug835-vivado-tcl-commands.pdf).
+`synth_design` runs synthesis with the loaded Verilog and XDC files, and `write_checkpoint` writes a file that contains the entire design state and can be opened by the Vivado GUI.
 
-Alternatively, you can also power up the board with the USB cable instead by switching the Power source jumper \texttt{JP5} position (see ~\ref{section:platform}). In this case, there is no need to use the power adaptor.
+### Inspect Synthesized Design
+Look at `build/synth/post_synth.v`.
+Note that the `z1top` module only contains FPGA primitives such as LUT2, IBUF (input buffer), and OBUF (output buffer).
 
+You should open the checkpoint `build/synth/z1top.dcp` in Vivado.
+Run `make vivado` to launch the Vivado GUI.
+Select File -> Checkpoint -> Open, and select `z1top.dcp`.
+
+In the left hand "Netlist" menu, right click on `BUTTONS_IBUF[0]_inst`, and select "Schematic".
+Now you can expand the schematic by right clicking on the "O" port of the IBUF -> Expand Cone -> To Leaf Cells.
+This will be a useful debugging technique in the future.
+
+### Place and Route and Generate Bitstream
+After synthesis, we can use Vivado to place and route the post-synthesis netlist and generate a bitstream to program the FPGA.
+Placement places the primitives in the netlist to the physical locations on the FPGA.
+Routing connects the placed blocks together using switch blocks and wires on the FPGA.
+The next step is timing analysis which evaluates if your design meets the target clock constraint (this only applies if your design has sequential elements, such as flip-flops or block RAMs).
+
+We have automated this: **run** `make impl` in `fpga_labs_fa21/lab1`.
+The `impl` make target is similar to the `synth` one, and it uses the commands in the `fpga_labs_fa21/scripts/impl.tcl` file.
+
+### Inspect Implemented Design
+Open the checkpoint `build/impl/z1top_routed.dcp` in Vivado.
+You will see the device floorplan of the FPGA chip.
+Can you locate the LUT cell that implements the 2-input AND gate from the source Verilog?
+
+You will need to zoom into the floorplan view to find it.
+Click the *Routing Resources* button on the menu bar to toggle the display of the routing wires that connect the IO pins and the LUT.
+
+### Program the FPGA
+#### Checking Out an FPGA
+If you've reached this step and produced a bitstream by running Vivado on your own laptop, you can check out an FPGA for use outside of lab.
+You should [fill out this form](https://docs.google.com/forms/d/e/1FAIpQLSdkq0bj6FfgpHQeVsCL0x3lr49TjfuGOhLKLhIv3ygBLphyjg/viewform?usp=sf_link), and provide a photo ID to the lab TA to receive an FPGA kit.
+
+#### Set up your PYNQ-Z1
+- Plug in the power adaptor to power up the board.
+- Connect the USB interface to a spare USB port on your workstation. Make sure you have [installed the Digilent cable driver](https://digilent.com/reference/programmable-logic/guides/install-cable-drivers) if you use Vivado locally on your own machine.
+- Turn the board on.
+
+Alternatively, you can also power up the board with the USB cable instead by switching the Power source jumper `JP5` position (see [Board Features](#user-content-board-features)). In this case, there is no need to use the power adaptor.
+
+**Run** `make program` to upload the bitstream to the FPGA.
+In the future, if you make any changes to the Verilog, you can run `make program` to rerun all the previous steps and program the FPGA with the new bitstream.
+If you want to program the FPGA with the current bitstream in `build/impl` even if you changed the Verilog, use the `make program-force` target.
+
+Does it work? Does the LED state reflect the logical AND of the button and switch?
+
+### Design Reports and Logs
+Reports are generated at each step in the Vivado build flow.
+They are stored in `build/synth` and `build/impl` with the suffix `.rpt` or `.log`.
+
+`*drc.rpt` will alert you if there are any design rule violations in your design.
+`*utilization.rpt` will tell you how many LUTs, FFs, BRAMs, DSPs are used.
+`*timing_summary.rpt` will tell you whether your circuit meets the target clock constraint.
+You can open the reports from your terminal using your favorite text editor.
+
+The following reports are particularly important and you should pay attention to when evaluating, debugging, or optimizing your design.
+- `build/synth/post_synth_utilization.rpt`: Resource utilization report after synthesis.
+- `build/impl/post_place_utilization.rpt`: Resource utilization report after placement.
+- `build/impl/post_route_timing_summary.rpt`: Timing summary report after routing.
+
+You will often find the `.log` (`build/synth/synth.log`, `build/impl/impl.log`) files helpful if you suspect Vivado is optimizing out a signal or if there are unexpected warnings.
+
+## Lab Deliverables
+### Lab Checkoff (due: 11AM, Friday Sept 10th, 2021)
+To checkoff for this lab, have these things ready to show the TA:
+- Demonstrate that you can generate a bitstream from the given sample code using Vivado. In addition, please show that you can program your FPGA board correctly.
+- Modify the sample code to implement a 4-input logic function of your choice. The inputs are the four buttons (BTN 0-3), and the output is LED 1 (LD1). Demonstrate that your logic circuit works correctly on the FPGA board.
+- Answers for the questions in [Understanding Your FPGA](#user-content-understanding-your-fpga)
