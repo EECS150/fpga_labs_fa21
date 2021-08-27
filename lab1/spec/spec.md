@@ -330,6 +330,9 @@ write_checkpoint -force ${TOP}.dcp
 These commands [are documented here](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2021_1/ug835-vivado-tcl-commands.pdf).
 `synth_design` runs synthesis with the loaded Verilog and XDC files, and `write_checkpoint` writes a file that contains the entire design state and can be opened by the Vivado GUI.
 
+Note that you may get this warning `The PSS7 cell must be used in this Zynq design in order to enable correct default configurations` during synthesis.
+This is safe to ignore since we aren't using the ARM core in the Zynq chip for this lab.
+
 ### Inspect Synthesized Design
 Look at `build/synth/post_synth.v`.
 Note that the `z1top` module only contains FPGA primitives such as LUT2, IBUF (input buffer), and OBUF (output buffer).
