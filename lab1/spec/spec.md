@@ -81,6 +81,8 @@ ssh -T git@github.com
 Hi <username>! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
+If you want to work on the labs directly from your laptop instead of via a workstation, you should repeat this process on your laptop (using WSL on Windows and the terminal on OSX or Linux).
+
 ### Some Notes for Remote Login
 If you're using the lab machines from your laptop, here are a few more things to do.
 
@@ -146,9 +148,9 @@ However, if you put in the effort to learn how to use some of the more powerful 
 *Optional*: If you would like to explore further, check out the [slightly more advanced tutorial written for CS250](http://inst.eecs.berkeley.edu/~cs250/fa13/handouts/tut1-git.pdf)
 
 ## Acquiring Lab Files
-The lab files, and eventually the project files, will be made available through a git repository provided by the staff.
+The lab and project files are on a GitHub git repository provided by the staff.
 
-Run this from your `eecs151-xxx` home directory:
+Run this in your `eecs151-xxx` home directory:
 ```shell
 git clone git@github.com:EECS150/fpga_labs_fa21.git
 ```
@@ -219,4 +221,109 @@ Our FPGA is an Artix-7 Programmable Logic fabric which is a low-end 7-series Xil
 1. What is the difference between a SLICEL and a SLICEM?
 1. How many inputs do each of the LUTs have?
 1. How do you implement logic functions of 7 inputs in a single SLICEL? How about 8? Draw a high-level circuit diagram to show how the implementation would look. Be specific about the elements (LUTs, muxes) that are used.
+
+## FPGA Build Flow
+
+Before we begin the lab, we should familiarize ourselves with the CAD (computer aided design) tools that translate a circuit implemented in a Hardware Description Language (such as Verilog) into a bitstream that configures the FPGA.
+These tools will pass your design through several stages, starting with logic synthesis, followed by placement and routing.
+The final stage generates a bitstream ready to download to your FPGA.
+
+The CAD tool provided by Xilinx is Vivado Design Suite.
+Vivado has an integrated scripting capability (using the Tcl language -- pronounced "tickle") which allows users to write Tcl commands to interact with Vivado in a command-line fashion.
+
+### Set up Vivado
+
+#### In the Lab
+The workstations already have Vivado installed: there is nothing to do.
+
+#### On Your Laptop
+If you wish to work using your laptop instead of SSHing to the workstations, you should install Vivado locally.
+You will need roughly 60GB of disk space for installations, and only 25GB after the installer is finished.
+
+##### Windows or Linux
+Download the Windows exe installer or the Linux bin installer [directly from Xilinx](https://www.xilinx.com/support/download.html) for Vivado ML Edition 2021.1.
+You will need to create a Xilinx account.
+
+For Windows, just install Vivado like any other program. For Linux, set the execute bit `chmod +x Xilinx_Unified_2021.1_0610_2318_Lin64.bin` and execute the script `./Xilinx_Unified_2021.1_0610_2318_Lin64.bin`.
+
+In the installer, select "Vivado" in the "Select Product to Install" screen, pick "Vivado ML Standard" in the "Select Edition to Install" screen, and check the boxes to only install support for the Zynq-7000 part.
+
+<p align=center>
+<img src="./figs/vivado_options.png" width=400/>
+</p>
+
+##### OSX
+Vivado doesn't run natively on OSX.
+You should use a Windows or Linux VirtualBox VM and install Vivado inside the VM, using the instructions above.
+Make sure there's enough virtual disk space allocated to the VM.
+
+### Verilog
+Throughout the semester, you will build increasingly complex designs using Verilog, a widely used hardware description language (HDL).
+
+Open up the `fpga_labs_fa21/lab1/src/z1top.v` file.
+This file contains a Verilog module description with specified input and output signals.
+The `z1top` module describes the *top-level* of the FPGA logic: it has access to the signals that come into and out of the FPGA chip.
+
+Here are the contents of `z1top.v`:
+```verilog
+module z1top(
+  input CLK_125MHZ_FPGA,
+  input [3:0] BUTTONS,
+  input [1:0] SWITCHES,
+  output [5:0] LEDS
+);
+  and(LEDS[0], BUTTONS[0], SWITCHES[0]);
+  assign LEDS[5:1] = 0;
+endmodule
+```
+
+The `BUTTONS` input is a signal that is 4 bits wide (as indicated by the [3:0] width descriptor).
+This input comes from the push-buttons on the bottom right side of your Pynq-Z1 board.
+**Inspect your board** to find these switches and confirm that there are 4 of them.
+
+The `SWITCHES` input, which is 2 bits wide (as indicated by the [1:0] descriptor), comes from the slide switches on the Pynq-Z1, located just to the left of the buttons (look for SW0 and SW1).
+
+The `LEDS` output is a signal that is 6 bits wide (as indicated by the [5:0] width descriptor).
+This output signal connectes to the bank of LEDs at the bottom right of the Pynq-Z1, just above the buttons.
+Almost. There are only 4 LEDs there; 2 more are tri-color LEDs located just above the slide switches in the middle.
+
+In this file, we can describe how the slide switches, push buttons and LEDs are connected through the FPGA. There is one line of code that describes an AND gate that takes the values of one of the buttons and one of the slide switches, ANDs them together, and sends that signal out to the first LED.
+
+
+### Constraints
+Constraints files, such as `lab1/src/z1top.xdc`, attach metadata to the Verilog source using TCL commands that Vivado understands.
+One critical piece of metadata is the mapping between FPGA input/output pins and signal names used in the top-level `z1top` module.
+
+Open up the constraint file in `lab1/src/z1top.xdc`.
+This file, which contains several Tcl commands, specifies some IO pin mappings.
+Note how the signals in the Verilog code correlate with the pin-mapping commands in this file.
+
+Let's see one example:
+```tcl
+set_property -dict { PACKAGE_PIN R14 IOSTANDARD LVCMOS33 } [get_ports { LEDS[0] }];
+```
+
+This line assigns the properties `PACKAGE_PIN` and `IOSTANDARD` with the values `R14` and `LVCMOS33` (respectively) to the port `LEDS[0]`, a signal we use as an output of `z1top`. Each of these properties has a separate consequence in the synthesis process.
+
+- The pin to which the `LEDS[0]` signal should be connected to the physical pin `R14` on the FPGA package.
+- The logic convention (maximum voltage, what ranges constitute low and high, etc) for that port will be `LVCMOS33`.
+
+To understand where `R14` came from, you should inspect page 9 of the [PYNQ-Z1 schematic](https://reference.digilentinc.com/_media/reference/programmable-logic/pynq-z1/pynq-z1\_sch.pdf).
+Note that `R14` is the name of an FPGA pin which connected to the `LED0` net on the PCB which drives an LED component.
+
+<!-- Setting constraints is one of the most important steps in the FPGA development flow, especially if your circuit interfaces with the external world (receiving signals or sending signals via IO circuitry of the board). Please do not forget this step. You will not be able to generate a bitstream if you do not set the pin mapping to all the input/output signals of your top-level Verilog module; Vivado will complain and abort. More importantly, your FPGA design will not work properly if your pin assignment is wrong. A good practice is to check the documentation/schematic of your target FPGA device carefully of which IO peripheral maps to which pin, and the appropriate logic standard unless you can get the sample board constraint file from the vendor.  -->
+
+### Synthesis
+
+Let's put this digital circuit on the FPGA! In the next section, we will learn how to create a basic Vivado project, add our Verilog and constraint files, and generate a bitstream file to program our FPGA.
+
+
+\subsection{Set up your PYNQ-Z1}
+\begin{enumerate}
+  \item Plug in the power adaptor to power up the board.
+  \item Connect the USB interface to a spare USB port on your workstation. Make sure you have installed Digilent cable driver if you use Vivado locally on your own machine.
+  \item Turn the board on.
+\end{enumerate}
+
+Alternatively, you can also power up the board with the USB cable instead by switching the Power source jumper \texttt{JP5} position (see ~\ref{section:platform}). In this case, there is no need to use the power adaptor.
 
