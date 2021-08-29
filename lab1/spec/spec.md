@@ -290,6 +290,11 @@ Almost. There are only 4 LEDs there; 2 more are tri-color LEDs located just abov
 
 In this file, we can describe how the slide switches, push buttons and LEDs are connected through the FPGA. There is one line of code that describes an AND gate that takes the values of one of the buttons and one of the slide switches, ANDs them together, and sends that signal out to the first LED.
 
+The syntax to create an AND gate driving an output `o` with gate inputs `a` and `b` is:
+```verilog
+and(o, a, b);
+```
+
 ### Constraints
 Constraints files, such as `lab1/src/z1top.xdc`, attach metadata to the Verilog source using TCL commands that Vivado understands.
 One critical piece of metadata is the mapping between FPGA input/output pins and signal names used in the top-level `z1top` module.
@@ -400,6 +405,16 @@ You will often find the `.log` (`build/synth/synth.log`, `build/impl/impl.log`) 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Sept 10th, 2021)
 To checkoff for this lab, have these things ready to show the TA:
-- Demonstrate that you can generate a bitstream from the given sample code using Vivado. In addition, please show that you can program your FPGA board correctly.
-- Modify the sample code to implement a 4-input logic function of your choice. The inputs are the four buttons (BTN 0-3), and the output is LED 1 (LD1). Demonstrate that your logic circuit works correctly on the FPGA board.
 - Answers for the questions in [Understanding Your FPGA](#user-content-understanding-your-fpga)
+- Demonstrate that you can generate a bitstream from the given sample code using Vivado. In addition, please show that you can program your FPGA board correctly.
+- Modify the sample code to implement a 4-input logic function of your choice. Use the four buttons (`BUTTONS[3:0]`) as inputs, and the the 2nd LED as output (`LEDS[1]`). Demonstrate that your logic circuit works correctly on the FPGA board.
+
+*Note*: You can declare wires in Verilog to hold intermediate boolean signals and drive them using `and` and `or` gates.
+```verilog
+input in1, in2, in3;
+output out;
+wire a, b;
+and(a, in1, in2);
+or(b, a, in3);
+and(out, b, a);
+```
