@@ -239,13 +239,14 @@ The workstations already have Vivado installed: there is nothing to do.
 
 #### On Your Laptop
 If you wish to work using your laptop instead of SSHing to the workstations, you should install Vivado locally.
-You will need roughly 60GB of disk space for installations, and only 25GB after the installer is finished.
+You will need roughly 60GB of disk space for the installation process, and only 25GB after the installer is finished.
 
 ##### Windows or Linux
 Download the Windows exe installer or the Linux bin installer [directly from Xilinx](https://www.xilinx.com/support/download.html) for Vivado ML Edition 2021.1.
-You will need to create a Xilinx account.
+You will need to create a (free) Xilinx account.
 
-For Windows, just install Vivado like any other program. For Linux, set the execute bit `chmod +x Xilinx_Unified_2021.1_0610_2318_Lin64.bin` and execute the script `./Xilinx_Unified_2021.1_0610_2318_Lin64.bin`.
+For Windows, just install Vivado like any other program.
+For Linux, set the execute bit `chmod +x Xilinx_Unified_2021.1_0610_2318_Lin64.bin` and execute the script `./Xilinx_Unified_2021.1_0610_2318_Lin64.bin`.
 
 In the installer, select "Vivado" in the "Select Product to Install" screen, pick "Vivado ML Standard" in the "Select Edition to Install" screen, and check the boxes to only install support for the Zynq-7000 part.
 
@@ -369,6 +370,12 @@ You will need to zoom into the floorplan view to find it.
 Click the *Routing Resources* button on the menu bar to toggle the display of the routing wires that connect the IO pins and the LUT.
 
 ### Program the FPGA
+#### Getting an FPGA
+If you've reached this step and produced a bitstream by running Vivado on your own laptop, you can get an FPGA to use with your laptop for the lab session.
+Ask the lab TA for an FPGA once you have produced a bitstream.
+We will not be checking out FPGAs for you to take home yet.
+
+If you're using a lab workstation, there should be an FPGA already attached to it.
 <!--
 #### Checking Out an FPGA
 If you've reached this step and produced a bitstream by running Vivado on your own laptop, you can check out an FPGA for use outside of lab.
