@@ -33,7 +33,7 @@ Once the account has been created, you should email your class account form to y
 #### In the Lab
 Log in to a workstation in the lab, using your `eecs151-xxx` login and initial password.
 
-#### Remotely
+#### Remotely (from your laptop)
 The workstations used for this class are `c111-1.eecs.berkeley.edu` - `c111-17.eecs.berkeley.edu`, and are physically located in Cory 111/117.
 Other servers such as `eda-1.eecs.berkeley.edu` through `eda-8.eecs.berkeley.edu` can be used for development too.
 You can access all of these machines remotely through SSH.
@@ -221,7 +221,7 @@ Our FPGA is an Artix-7 Programmable Logic fabric which is a low-end 7-series Xil
 1. How many SLICEs are in a single CLB? What does each SLICE contain?
 1. What is the difference between a SLICEL and a SLICEM?
 1. How many inputs do each of the LUTs have?
-1. How do you implement logic functions of 7 inputs in a single SLICEL? How about 8? Draw a high-level circuit diagram to show how the implementation would look. Be specific about the elements (LUTs, muxes) that are used.
+1. How do you implement logic functions of 7 inputs in a single SLICEL? How about 8? Sketch a high-level circuit diagram to show how the implementation would look. Be specific about the elements (LUTs, muxes) that are used.
 
 ## FPGA Build Flow
 
@@ -369,9 +369,11 @@ You will need to zoom into the floorplan view to find it.
 Click the *Routing Resources* button on the menu bar to toggle the display of the routing wires that connect the IO pins and the LUT.
 
 ### Program the FPGA
+<!--
 #### Checking Out an FPGA
 If you've reached this step and produced a bitstream by running Vivado on your own laptop, you can check out an FPGA for use outside of lab.
 You should [fill out this form](https://docs.google.com/forms/d/e/1FAIpQLSdkq0bj6FfgpHQeVsCL0x3lr49TjfuGOhLKLhIv3ygBLphyjg/viewform?usp=sf_link), and provide a photo ID to the lab TA to receive an FPGA kit.
+-->
 
 #### Set up your PYNQ-Z1
 - Plug in the power adaptor to power up the board.
@@ -404,10 +406,11 @@ You will often find the `.log` (`build/synth/synth.log`, `build/impl/impl.log`) 
 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Sept 10th, 2021)
+- Please submit answers for the questions in [Understanding Your FPGA](#user-content-understanding-your-fpga) to the [Gradescope assignment](https://www.gradescope.com/courses/295948/assignments/1451298).
+
 To checkoff for this lab, have these things ready to show the TA:
-- Answers for the questions in [Understanding Your FPGA](#user-content-understanding-your-fpga)
-- Demonstrate that you can generate a bitstream from the given sample code using Vivado. In addition, please show that you can program your FPGA board correctly.
-- Modify the sample code to implement a 4-input logic function of your choice. Use the four buttons (`BUTTONS[3:0]`) as inputs, and the the 2nd LED as output (`LEDS[1]`). Demonstrate that your logic circuit works correctly on the FPGA board.
+  - Demonstrate that you can generate a bitstream from the given sample code using Vivado. In addition, please show that you can program your FPGA board correctly.
+  - Modify the sample code to implement a 4-input logic function of your choice. Use the four buttons (`BUTTONS[3:0]`) as inputs, and the the 2nd LED as output (`LEDS[1]`). Demonstrate that your logic circuit works correctly on the FPGA board.
 
 *Note*: You can declare wires in Verilog to hold intermediate boolean signals and drive them using `and` and `or` gates.
 ```verilog
