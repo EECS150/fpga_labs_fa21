@@ -232,6 +232,14 @@ The final stage generates a bitstream ready to download to your FPGA.
 The CAD tool provided by Xilinx is Vivado Design Suite.
 Vivado has an integrated scripting capability (using the Tcl language -- pronounced "tickle") which allows users to write Tcl commands to interact with Vivado in a command-line fashion.
 
+### Get CAD Tools on Your $PATH
+- Add the following line to your `~/.bashrc` file:
+```bash
+source /home/ff/eecs151/eecs151_fpga.sh
+```
+- Close your SSH sessions / log out and log back in
+- Make sure `which vivado` returns `/share/instsww/xilinx/Vivado/current/bin/vivado`
+
 ### Set up Vivado
 
 #### In the Lab
