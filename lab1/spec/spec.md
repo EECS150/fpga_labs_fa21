@@ -255,9 +255,16 @@ In the installer, select "Vivado" in the "Select Product to Install" screen, pic
 </p>
 
 ##### OSX
-Vivado doesn't run natively on OSX.
-You should use a Windows or Linux VirtualBox VM and install Vivado inside the VM, using the instructions above.
-Make sure there's enough virtual disk space allocated to the VM.
+Vivado doesn't run natively on OSX. We provide a [VirtualBox VM Image](https://berkeley.box.com/s/s4z0ykpf0tudrm9hce8fsmitpgb2khhe) containing Vivado 2019.1. 
+The download is around 10GB, and the VM expands to 24GB after importing to VirtualBox. 
+The username is eecs151 and the password is eecs151. After entering the VM, add the following line to your /home/eecs151/.bashrc file:
+
+```shell
+export PATH=/opt/xilinx/Vivado/2019.1/bin:$PATH
+```
+
+Alternatively, you can use a Windows or Linux VirtualBox VM and install Vivado inside the VM, using the instructions above.
+Make sure there's enough virtual disk space allocated to the VM. Note that Vivado does not run on ARM CPUs such as the Apple M1 - neither of the above methods will work for these computers.
 
 ### Verilog
 Throughout the semester, you will build increasingly complex designs using Verilog, a widely used hardware description language (HDL).
