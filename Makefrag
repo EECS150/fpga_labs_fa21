@@ -43,6 +43,10 @@ build/target.tcl: $(RTL) $(CONSTRAINTS)
 
 setup: build/target.tcl
 
+elaborate: build/target.tcl $(SCRIPTS)/elaborate.tcl
+	mkdir -p ./build
+	cd ./build && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/elaborate.tcl |& tee elaborate.log
+
 build/synth/$(TOP).dcp: build/target.tcl $(SCRIPTS)/synth.tcl
 	mkdir -p ./build/synth/
 	cd ./build/synth/ && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/synth.tcl |& tee synth.log
