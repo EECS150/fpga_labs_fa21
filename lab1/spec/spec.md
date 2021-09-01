@@ -443,3 +443,19 @@ and(a, in1, in2);
 or(b, a, in3);
 and(out, b, a);
 ```
+
+## Acknowledgement
+This lab is the result of the work of many EECS151/251 GSIs over the years including:
+- Sp12: James Parker, Daiwei Li, Shaoyi Cheng
+- Sp13: Shaoyi Cheng, Vincent Lee
+- Fa14: Simon Scott, Ian Juch
+- Fa15: James Martin
+- Fa16: Vighnesh Iyer
+- Fa17: George Alexandrov, Vighnesh Iyer, Nathan Narevsky
+- Sp18: Arya Reais-Parsi, Taehwan Kim
+- Fa18: Ali Moin, George Alexandrov, Andy Zhou
+- Sp19: Christopher Yarp, Arya Reais-Parsi
+- Fa19: Vighnesh Iyer, Rebekah Zhao, Ryan Kaveh
+- Sp20: Tan Nguyen
+- Fa20: Charles Hong, Kareem Ahmad, Zhenghan Lin
+- Sp21: Sean Huang, Tan Nguyen
