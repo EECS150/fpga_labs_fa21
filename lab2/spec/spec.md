@@ -25,7 +25,7 @@ Go through the [Verilog Primer Slides](http://inst.eecs.berkeley.edu/~eecs151/fa
 ### Build a Structural 14-bit Adder
 To help you with this task, please refer to the `Code Generation with for-generate loops' slide in the Verilog Primer Slides (slide 35).
 
-- Open `lab2/lab2.srcs/sources_1/new/full_adder.v`; fill in the logic to produce the full adder outputs from the inputs
+- Open `lab2/src/full_adder.v`; fill in the logic to produce the full adder outputs from the inputs
 - Open `structural_adder.v` and construct a ripple carry adder using the full adder cells you designed earlier and a 'for-generate loop'.
 - Finally, inspect the `z1top_adder.v` top-level module and see how your structural adder is instantiated and hooked up to the top-level signals. For now, just look at the `user_adder` instance of your structural adder. As we learned in previous lab, the basic I/O options on the Z1 board are limited. How are we managing to input two 3-bit integers?
 - Run bitstream generation as usual. Like last time, we have provided a Makefile that automates calling Vivado. This allows you to run synthesis with `make synth` and place and route/generate bitstream with `make impl`.
