@@ -256,4 +256,4 @@ Now run the simulation again.
 
 ## Put the Counter on the FPGA
 
-Once you're confident that your counter works, program the FPGA using `z1top_counter.v` as the top level module. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. This process, where we use simulation to very the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
+Once you're confident that your counter works, program the FPGA using `z1top_counter.v` as the top level module. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
