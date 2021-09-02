@@ -15,6 +15,14 @@ module adder_testbench();
   );
 
   initial begin
+    `ifdef IVERILOG
+      $dumpfile("tone_generator_testbench.fst");
+      $dumpvars(0,tone_generator_testbench);
+    `endif
+    `ifndef IVERILOG
+      $vcdpluson;
+    `endif
+
     // Change input values and step forward in time to test
     // your counter and its clock enable/disable functionality.
     a = 14'd1;
@@ -28,6 +36,10 @@ module adder_testbench();
     a = 14'd10;
     b = 14'd10;
     #(10 * `MS);
+
+    `ifndef IVERILOG
+      $vcdplusoff;
+    `endif
     $finish();
   end
 endmodule
