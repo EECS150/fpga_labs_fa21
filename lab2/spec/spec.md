@@ -205,8 +205,8 @@ Run `make sim/tone_generator_testbench.fst` to launch a simulation with Icarus a
 You can open the FST with gtkwave locally or on the lab machines.
 
 ### Analyzing the Simulation
-After opening the waveform, you should be able to see the clock oscillate at the frequency specified in the testbench.
-You should also see the `a` signal start at ` and then become 0 after 10 ms.
+After opening the waveform, you should be able to see the signals change as specified in the testbench.
+For example, you should see the `a` signal start at 1 and then become 0 after 10 ms.
 
 ### Helpful Tip: Reloading Waveforms
 When you re-run your simulation and you want to plot the newly generated signals in DVE or gtkwave, you don't need to close and reopen the waveform viewer.
