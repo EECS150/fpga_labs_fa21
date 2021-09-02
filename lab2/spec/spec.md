@@ -213,7 +213,7 @@ Look at the [PYNQ Reference Manual](https://reference.digilentinc.com/reference/
 Read Section 11 about the clock sources available on the PYNQ.
 We are using the 125 MHz clock from the Ethernet PHY IC on the PYNQ board that connects to pin H16 of the FPGA chip.
 
-Look at the `lab2/src/z1top_counter.v` top-level module and its `CLK_125MHZ_FPGA` input.
+Look at the `lab2/src/z1top.v` top-level module and its `CLK_125MHZ_FPGA` input.
 ```verilog
 module z1top_counter (
     input CLK_125MHZ_FPGA,
@@ -222,6 +222,12 @@ module z1top_counter (
 ```
 
 We can access the clock signal from our Verilog top-level module and can propagate this clock signal to any submodules that may need it.
+
+**In this file, comment out the following line to enable the counter circuit, and add it back to enable the adder circuits.**
+```verilog
+// Comment out this line when you want to instantiate your counter
+`define ADDER_CIRCUIT
+```
 
 ### Build a 4-bit Counter
 
@@ -274,4 +280,4 @@ Now run the simulation again.
 
 ## Put the Counter on the FPGA
 
-Once you're confident that your counter works, program the FPGA using `z1top_counter.v` as the top level module. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
+Once you're confident that your counter works, program the FPGA using the make-based flow as before. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
