@@ -28,5 +28,4 @@ module adder_tester (
             error <= error;
         end
     end
-
 endmodule
