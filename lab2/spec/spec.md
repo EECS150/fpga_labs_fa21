@@ -174,7 +174,7 @@ dve -vpd sim/tone_generator_testbench.vpd &
 ```
 
 <p align="center">
-<img src="./figs/dve.png" width="400" />
+<img src="./figs/dve.png" width="800" />
 </p>
 
 From left to right, you can see the `Hierarchy', `Signals', and `Source Code' windows.
@@ -182,7 +182,7 @@ The `Hierarchy' window lets you select a particular module instance in the testb
 In the `Signals' window, you can select multiple signals (by Shift-clicking) and then right-click → 'Add To Waves' → 'New Wave View' to plot the waveforms for the selected signals.
 
 <p align="center">
-<img src="./figs/dve_wave.png" width="400" />
+<img src="./figs/dve_wave.png" width="800" />
 </p>
 
 Here are a few useful shortcuts:
