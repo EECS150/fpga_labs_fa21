@@ -155,12 +155,12 @@ They all take in Verilog RTL and a Verilog testbench module and output:
 #### VCS
 If you're using the lab machines, you should use VCS:
 ```shell
-make sim/tone_generator_testbench.vpd
+make sim/adder_testbench.vpd
 ```
 This will generate a waveform file `sim/adder_testbench.vpd` which you can view using `dve`.
 Login to the lab machines physically or use X2go and run:
 ```shell
-dve -vpd sim/tone_generator_testbench.vpd &
+dve -vpd sim/adder_testbench.vpd &
 ```
 
 <p align="center">
@@ -191,7 +191,7 @@ You can run XSIM on your laptop.
 Icarus Verilog is available on the lab machines.
 To install Icarus and gtkwave locally, refer to the appendix.
 
-Run `make sim/tone_generator_testbench.fst` to launch a simulation with Icarus and to produce a FST waveform file.
+Run `make sim/adder_testbench.fst` to launch a simulation with Icarus and to produce a FST waveform file.
 You can open the FST with gtkwave locally or on the lab machines.
 
 ### Analyzing the Simulation
@@ -213,7 +213,7 @@ Look at the [PYNQ Reference Manual](https://reference.digilentinc.com/reference/
 Read Section 11 about the clock sources available on the PYNQ.
 We are using the 125 MHz clock from the Ethernet PHY IC on the PYNQ board that connects to pin H16 of the FPGA chip.
 
-Look at the `lab2/src/z1top_counter.v` top-level module and its `CLK_125MHZ_FPGA` input.
+Look at the `lab2/src/z1top.v` top-level module and its `CLK_125MHZ_FPGA` input.
 ```verilog
 module z1top_counter (
     input CLK_125MHZ_FPGA,
@@ -222,6 +222,12 @@ module z1top_counter (
 ```
 
 We can access the clock signal from our Verilog top-level module and can propagate this clock signal to any submodules that may need it.
+
+**In this file, comment out the following line to enable the counter circuit, and add it back to enable the adder circuits.**
+```verilog
+// Comment out this line when you want to instantiate your counter
+`define ADDER_CIRCUIT
+```
 
 ### Build a 4-bit Counter
 
@@ -274,4 +280,30 @@ Now run the simulation again.
 
 ## Put the Counter on the FPGA
 
-Once you're confident that your counter works, program the FPGA using `z1top_counter.v` as the top level module. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
+Once you're confident that your counter works, program the FPGA using the make-based flow as before. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. If done correctly, LEDs 0 through 3 should continually count up by 1 each second.
+
+This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
+
+## Lab Deliverables
+### Lab Checkoff (due: 11AM, Friday Sept 17th, 2021)
+To checkoff for this lab, have these things ready to show the TA:
+  - Your FPGA, programmed with the adders and with both RGB LEDs (LEDs 4 and 5) lit up showing correctness. Be ready to explain how your structural adder works.
+  - A waveform demonstrating the testbench you wrote that tests your counter and its clock enable functionality.
+
+No lab report this week!
+
+## Acknowledgement
+This lab is the result of the work of many EECS151/251 GSIs over the years including:
+- Sp12: James Parker, Daiwei Li, Shaoyi Cheng
+- Sp13: Shaoyi Cheng, Vincent Lee
+- Fa14: Simon Scott, Ian Juch
+- Fa15: James Martin
+- Fa16: Vighnesh Iyer
+- Fa17: George Alexandrov, Vighnesh Iyer, Nathan Narevsky
+- Sp18: Arya Reais-Parsi, Taehwan Kim
+- Fa18: Ali Moin, George Alexandrov, Andy Zhou
+- Sp19: Christopher Yarp, Arya Reais-Parsi
+- Fa19: Vighnesh Iyer, Rebekah Zhao, Ryan Kaveh
+- Sp20: Tan Nguyen
+- Fa20: Charles Hong, Kareem Ahmad, Zhenghan Lin
+- Sp21: Sean Huang, Tan Nguyen
