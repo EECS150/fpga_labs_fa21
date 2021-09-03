@@ -281,3 +281,27 @@ Now run the simulation again.
 ## Put the Counter on the FPGA
 
 Once you're confident that your counter works, program the FPGA using the make-based flow as before. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
+
+## Lab Deliverables
+### Lab Checkoff (due: 11AM, Friday Sept 17th, 2021)
+To checkoff for this lab, have these things ready to show the TA:
+  - Your FPGA, programmed with the adders and with both RGB LEDs (LEDs 4 and 5) lit up showing correctness. Be ready to explain how your structural adder works.
+  - A waveform demonstrating the testbench you wrote that tests your counter and its clock enable functionality.
+
+No lab report this week!
+
+## Acknowledgement
+This lab is the result of the work of many EECS151/251 GSIs over the years including:
+- Sp12: James Parker, Daiwei Li, Shaoyi Cheng
+- Sp13: Shaoyi Cheng, Vincent Lee
+- Fa14: Simon Scott, Ian Juch
+- Fa15: James Martin
+- Fa16: Vighnesh Iyer
+- Fa17: George Alexandrov, Vighnesh Iyer, Nathan Narevsky
+- Sp18: Arya Reais-Parsi, Taehwan Kim
+- Fa18: Ali Moin, George Alexandrov, Andy Zhou
+- Sp19: Christopher Yarp, Arya Reais-Parsi
+- Fa19: Vighnesh Iyer, Rebekah Zhao, Ryan Kaveh
+- Sp20: Tan Nguyen
+- Fa20: Charles Hong, Kareem Ahmad, Zhenghan Lin
+- Sp21: Sean Huang, Tan Nguyen
