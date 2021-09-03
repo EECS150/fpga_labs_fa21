@@ -280,7 +280,9 @@ Now run the simulation again.
 
 ## Put the Counter on the FPGA
 
-Once you're confident that your counter works, program the FPGA using the make-based flow as before. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
+Once you're confident that your counter works, program the FPGA using the make-based flow as before. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. If done correctly, LEDs 0 through 3 should continually count up by 1 each second.
+
+This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Sept 17th, 2021)
