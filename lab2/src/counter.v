@@ -5,7 +5,7 @@ module counter (
 );
   // Some initial code has been provided for you
   // You can change this code if needed
-  reg [3:0] led_cnt_value = 0;
+  reg [3:0] led_cnt_value;
   assign LEDS = led_cnt_value;
 
   // TODO: Instantiate a reg net to count the number of cycles
