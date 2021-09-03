@@ -134,10 +134,10 @@ The `initial begin ... end` block is the "main()" function for our testbench, an
 In the `initial` block we drive the DUT inputs using blocking (`=`) assignments.
 
 We can order the simulator to advance simulation time using delay statements.
-A delay statement takes the form `#(delay in time steps);`.
-For instance the statement `#(100);` would run the simulation for 100ns.
+A delay statement takes the form `#(units);`, where *1 unit* represents the simulation time unit defined in `timescale` declaration.
+For instance the statement `#(100);` would run the simulation for 100 units = 100 * 1ns = 100ns.
 
-In this case, we set `BUTTONS` to 0 at the start of the simulation, let the simulation run for 10ms, then set \verb|output_enable| to 1.
+In the `initial` block, we set `BUTTONS` to 0 at the start of the simulation, let the simulation run for 10ms, then set \verb|output_enable| to 1.
 Then `a` and `b` are changed several times, and the adder provides new sums.
 The final statement is a system function: the `$finish()` function tells the simulator to halt the simulation.
 

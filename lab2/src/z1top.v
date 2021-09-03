@@ -45,12 +45,12 @@ module z1top (
         .test_fail(test_fail)
     );
 `else
-  assign LEDS[5:4] = 0;
+    assign LEDS[5:4] = 0;
 
-  counter ctr (
-    .clk(CLK_125MHZ_FPGA),
-    .ce(SWITCHES[0]),
-    .LEDS(LEDS[3:0])
-  );
+    counter ctr (
+        .clk(CLK_125MHZ_FPGA),
+        .ce(SWITCHES[0]),
+        .LEDS(LEDS[3:0])
+    );
 `endif
 endmodule
