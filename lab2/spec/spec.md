@@ -251,6 +251,8 @@ The clock signal needs to be generated in our testbench so it can be fed to the 
 The initial statement sets the value of the clock net to 0 at the very start of the simulation.
 The next line toggles the clock signal every 4ns, i.e. half period of 125 MHz clock.
 
+Note that you may want to increase how quickly the counter counts up, as simulation takes longer as the time your testbench simulates for increases.
+
 ### Analyzing the Simulation
 This time, you *may* see that your counter signal is just a red line. What's going on?
 
