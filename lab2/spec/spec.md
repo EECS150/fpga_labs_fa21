@@ -155,12 +155,12 @@ They all take in Verilog RTL and a Verilog testbench module and output:
 #### VCS
 If you're using the lab machines, you should use VCS:
 ```shell
-make sim/tone_generator_testbench.vpd
+make sim/adder_testbench.vpd
 ```
 This will generate a waveform file `sim/adder_testbench.vpd` which you can view using `dve`.
 Login to the lab machines physically or use X2go and run:
 ```shell
-dve -vpd sim/tone_generator_testbench.vpd &
+dve -vpd sim/adder_testbench.vpd &
 ```
 
 <p align="center">
@@ -191,7 +191,7 @@ You can run XSIM on your laptop.
 Icarus Verilog is available on the lab machines.
 To install Icarus and gtkwave locally, refer to the appendix.
 
-Run `make sim/tone_generator_testbench.fst` to launch a simulation with Icarus and to produce a FST waveform file.
+Run `make sim/adder_testbench.fst` to launch a simulation with Icarus and to produce a FST waveform file.
 You can open the FST with gtkwave locally or on the lab machines.
 
 ### Analyzing the Simulation
