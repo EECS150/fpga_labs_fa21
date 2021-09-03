@@ -4,9 +4,9 @@
 `define MS 1000000
 
 module counter_testbench();
-  reg clock;
-  reg ce = 0;
-  wire [5:0] LEDS;
+  reg clock = 0;
+  reg ce;
+  wire [3:0] LEDS;
 
   counter ctr (
     .clk(clock),
@@ -26,9 +26,10 @@ module counter_testbench();
     `ifndef IVERILOG
       $vcdpluson;
     `endif
+
     // TODO: Change input values and step forward in time to test
     // your counter and its clock enable/disable functionality.
-    
+
 
     `ifndef IVERILOG
       $vcdplusoff;
