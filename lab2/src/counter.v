@@ -6,6 +6,7 @@ module counter (
   assign LEDS[5:4] = 0;
 
   // Some initial code has been provided for you
+  // You can change this code if needed
   reg [3:0] led_cnt_value;
   assign LEDS[3:0] = led_cnt_value;
 
