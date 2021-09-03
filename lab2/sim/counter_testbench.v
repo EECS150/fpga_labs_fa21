@@ -19,9 +19,20 @@ module counter_testbench();
   always #(4) clock <= ~clock;
 
   initial begin
+    `ifdef IVERILOG
+      $dumpfile("tone_generator_testbench.fst");
+      $dumpvars(0,tone_generator_testbench);
+    `endif
+    `ifndef IVERILOG
+      $vcdpluson;
+    `endif
     // TODO: Change input values and step forward in time to test
     // your counter and its clock enable/disable functionality.
     
+
+    `ifndef IVERILOG
+      $vcdplusoff;
+    `endif
     $finish();
   end
 
