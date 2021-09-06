@@ -358,7 +358,7 @@ make sim/counter_testbench.fst  # iverilog
 ```
 
 *Note*: simulating even a simple circuit for 1 second can take a long time.
-You may want to modify your `counter` to count up every 1/25th of a second, so you can run simulation for a shorter duration.
+You may want to modify your `counter` to count up every 1/1000th of a second, so you can run simulation for a shorter duration.
 Once your design simulates successfully, you can change a constant in your `counter` to count up every second.
 
 ### Analyzing the Simulation
