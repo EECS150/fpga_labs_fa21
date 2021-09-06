@@ -16,27 +16,30 @@ module adder_testbench();
 
     initial begin
         `ifdef IVERILOG
-            $dumpfile("tone_generator_testbench.fst");
-            $dumpvars(0,tone_generator_testbench);
+            $dumpfile("adder_testbench.fst");
+            $dumpvars(0, adder_testbench);
         `endif
         `ifndef IVERILOG
             $vcdpluson;
         `endif
 
-        // Change input values and step forward in time to test
-        // your counter and its clock enable/disable functionality.
         a = 14'd1;
         b = 14'd1;
-        #(10 * `MS);
-        assert(sum == 'd3) else $display("Some error");
+        #(2);
+        assert(sum == 'd2);
 
         a = 14'd0;
         b = 14'd1;
-        #(10 * `MS);
+        #(2);
+        assert(sum == 'd1) else $display("ERROR: Expected sum to be 1, actual value: %d", sum);
 
         a = 14'd10;
         b = 14'd10;
-        #(10 * `MS);
+        #(2);
+        if (sum != 'd20) begin
+            $error("Expected sum to be 20, a: %d, b: %d, actual value: %d", a, b, sum);
+            $fatal(1);
+        end
 
         `ifndef IVERILOG
             $vcdplusoff;

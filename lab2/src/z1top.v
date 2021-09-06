@@ -1,5 +1,3 @@
-`timescale 1ns/1ps
-
 // Comment out this line when you want to instantiate your counter
 `define ADDER_CIRCUIT
 
@@ -11,11 +9,13 @@ module z1top (
 );
 
 `ifdef ADDER_CIRCUIT
+    wire [14:0] adder_out;
     structural_adder user_adder (
         .a({11'b0,SWITCHES[0],BUTTONS[1:0]}),
         .b({11'b0,SWITCHES[1],BUTTONS[3:2]}),
-        .sum(LEDS[3:0])       // Upper bits will be truncated
+        .sum(adder_out)
     );
+    assign LEDS[3:0] = adder_out[3:0]; // truncate upper bits
 
     // Self test of the structural adder
     wire [13:0] adder_operand1, adder_operand2;

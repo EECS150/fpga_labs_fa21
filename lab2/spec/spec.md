@@ -23,23 +23,37 @@ Go through the [Verilog Primer Slides](http://inst.eecs.berkeley.edu/~eecs151/fa
 ## A Structural and Behavioral Adder Design
 
 ### Build a Structural 14-bit Adder
-To help you with this task, please refer to the `Code Generation with for-generate loops` slide in the Verilog Primer Slides (slide 35).
+To help you with this task, please refer to the `Code Generation with for-generate loops` slide in the [Verilog Primer Slides](http://inst.eecs.berkeley.edu/~eecs151/fa21/files/verilog/Verilog_Primer_Slides.pdf) (slide 35).
 
-- Open `lab2/src/full_adder.v`: fill in the logic to produce the full adder outputs from the inputs.
-- Open `structural_adder.v` and construct a ripple carry adder using the full adder cells you designed earlier and a 'for-generate loop'.
-- Finally, inspect the `z1top.v` top-level module and see how your structural adder is instantiated and hooked up to the top-level signals.
-  For now, just look at the `user_adder` instance of your structural adder.
-  As we learned in previous lab, the basic I/O options on the PYNQ-Z1 board are limited.
-  *How are we getting two 3-bit integers as inputs from the board?*
-- Generate a bitstream.
-  Like last time, we have provided a Makefile that automates running Vivado.
-  Run synthesis with `make synth` and place and route/generate bitstream with `make impl`.
-- Program the FPGA with `make program` and test out the design.
-  Try entering different binary numbers into your adder with the switches and buttons and see that the correct sum is displayed on the IO LEDs.
-- If the circuit doesn't work properly on your first try, don't worry and move on to the next section where we simulate the `structural_adder` and you can easily fix bugs.
+Open `lab2/src/full_adder.v` and **fill in the logic** to produce the full adder outputs from the inputs.
+
+Open `lab2/src/structural_adder.v` and **construct a ripple carry adder** using the full adder cells you designed earlier and a 'for-generate loop'.
+
+Inspect the `z1top.v` top-level module and see how your structural adder is instantiated and hooked up to the top-level signals.
+For now, just look at the `user_adder` instance of your structural adder.
+As we learned in previous lab, the basic I/O options on the PYNQ-Z1 board are limited.
+*How are we getting two 3-bit integers as inputs to the adder from the PYNQ board?*
+
+#### Makefile-Based Build Flow
+Here is an overview of the `make` targets available in the `fpga_labs_fa21/labX` folders:
+- `make lint` - Lint your Verilog with Verilator; checks for common Verilog typos, mistakes, and syntax errors
+- `make elaborate` - Elaborate (but don't synthesize) the Verilog with Vivado and open the GUI to view the schematic
+- `make synth` - Synthesize `z1top` and put logs and outputs in `build/synth`
+- `make impl` - Implement (place and route) the design, generate the bitstream, and put logs and outputs in `build/impl`
+- `make program` - Program the FPGA with the bitstream in `build/impl`
+- `make program-force` - Program the FPGA with the bitstream in `build/impl` **without** re-running synthesis and implementation if the source Verilog has changed
+- `make vivado` - Launch the Vivado GUI
+
+Running `make program` will run all the steps required to regenerate a bitstream if the Verilog sources have changed.
+
+**Use this flow** to generate a bitstream and program the FPGA.
+Try running `make lint` and `make elaborate` before you run `make program`.
+
+**Try entering** different binary numbers into your adder with the switches and buttons and see that the correct sum is displayed on the LEDs.
+If the circuit doesn't work properly on your first try, don't worry and move on to the next section where we simulate the `structural_adder` and you can easily fix bugs.
 
 ### Build a Behavioral 14-bit Adder
-Check out `behavioral_adder.v`.
+Check out `lab2/src/behavioral_adder.v`.
 It has already been filled with the appropriate logic for you.
 Notice how behavioral Verilog allows you to describe the function of a circuit rather than the topology or implementation.
 
@@ -83,8 +97,9 @@ For this lab, we aren't modeling any gate delays, so the resolution can safely e
 ```
 
 These are some macros defined for our testbench.
-They are constant values you can use when writing your testbench to simplify your code and make it obvious what certain numbers mean.
-For example, `SECOND` is defined as the number of nanoseconds in one second.
+They are similar to `#define` directives in C.
+`define` macros should be used to declare named constants which are used in your RTL or testbench.
+For example, in this testbench, `SECOND` is defined as the number of nanoseconds in one second.
 
 ```verilog
 module adder_testbench();
@@ -105,7 +120,7 @@ wire [14:0] sum;
 Now we declare nets to hold the inputs and outputs that go in and out of the DUT.
 Notice that the inputs to the `structural_adder` are declared as `reg` type nets and the outputs are declared as `wire` type nets.
 The inputs nets (`a`, `b`) are declared as `reg` since they are assigned inside the testbench's `initial` block.
-The output net (`sum`) is declared as `wire` because any connection to the output of an instantiated module must be a wire.
+The output net (`sum`) is declared as `wire` because *any connection to the output of an instantiated module must be a wire*.
 
 *Note*: we can set the initial value of `reg` nets in the testbench to drive a particular value into the DUT at simulation time 0 (e.g. `a`).
 
@@ -121,26 +136,67 @@ Now we instantiate the DUT and connect its ports to the nets we have declared in
 
 ```verilog
 initial begin
-  a = 14'd1;
-  b = 14'd1;
-  #(10 * `MS);
-  ...
-  $finish();
-end
+  `ifdef IVERILOG
+      $dumpfile("adder_testbench.fst");
+      $dumpvars(0, adder_testbench);
+  `endif
+  `ifndef IVERILOG
+      $vcdpluson;
+  `endif
 ```
-
 This is the body of our testbench.
 The `initial begin ... end` block is the "main()" function for our testbench, and where the simulation begins execution.
+
+This block enables simulator-specific waveform dumping for the 2 RTL simulators we are using.
+Verilog *system tasks* are prefixed by a dollar sign (e.g. `$dumpfile`).
+System tasks are similar to function calls, and they are implemented by the simulator.
+
+```verilog
+    a = 14'd1;
+    b = 14'd1;
+    #(2);
+    assert(sum == 'd2);
+```
+
 In the `initial` block we drive the DUT inputs using blocking (`=`) assignments.
+In Verilog we can construct literal values using the syntax `<bit width>'<radix><value>`.
+Here are a few examples:
+  - `14'd1` = a 14-bit literal with value = 1 (`d` = radix 10 - decimal)
+  - `32'hcafef00d` = a 32-bit literal with value = 0xCAFEFOOD (`h` = radix 16 - hexadecimal)
+  - `8'b1010_0001` = an 8-bit literal with value = 0b10100001 (`b` = radix 2 - binary)
+      - *note*: Use underscores to make reading the literal easier
+  - `'hFFFF_0000` = a 32-bit literal with value = 0xFFFF0000
+      - *note*: You can omit the bit width and let Verilog use the minimum number of bits necessary to construct the literal. This is not recommended for RTL, but is often OK for testbenches.
 
-We can order the simulator to advance simulation time using delay statements.
+Since the adder is a combinational circuit, once we set its inputs (`a` and `b`), we must advance time for the inputs to propagate to the output (`sum`) through the circuit, before we can inspect the output.
+
+We can advance simulation time using delay statements.
 A delay statement takes the form `#(units);`, where *1 unit* represents the simulation time unit defined in `timescale` declaration.
-For instance the statement `#(100);` would run the simulation for 100 units = 100 * 1ns = 100ns.
+For instance the statement `#(2);` would advance the simulation for 2 time units = 2 * 1ns = 2ns.
 
-In the `initial` block, we set `BUTTONS` to 0 at the start of the simulation, let the simulation run for 10ms, then set \verb|output_enable| to 1.
-Then `a` and `b` are changed several times, and the adder provides new sums.
-The final statement is a system function: the `$finish()` function tells the simulator to halt the simulation.
+After advancing time, `sum` should have the value `2`.
+We can use the `assert` statement to check this condition, and if it doesn't hold, the simulator will emit an error.
 
+```verilog
+    assert(sum == 'd1) else $display("ERROR: Expected sum to be 1, actual value: %d", sum);
+```
+Note that you can provide an error message using the `$display` system task which takes a format string and arguments similar to `printf()` in C.
+
+```verilog
+    if (sum != 'd20) begin
+        $error("Expected sum to be 20, a: %d, b: %d, actual value: %d", a, b, sum);
+        $fatal(1);
+    end
+```
+You can also use regular `if` statements to check conditions.
+The `$error()` system task also takes a format string and prints an error to the console.
+Both the `$error()` system task and `assert` *won't* halt and exit the simulation if there's a failure; you must use the `$fatal()` system task if you want to kill the simulation immediately.
+
+```verilog
+    $finish();
+end
+```
+Finally, the `$finish()` system task gracefully exits the simulation.
 
 ### Running the Simulation
 There are 2 RTL simulators we can use:
@@ -153,7 +209,8 @@ They all take in Verilog RTL and a Verilog testbench module and output:
 - A text dump containing anything that was printed during the testbench execution
 
 #### VCS
-If you're using the lab machines, you should use VCS:
+If you're using the lab machines, you should use VCS.
+Run the Makefile from `fpga_labs_fa21/lab2`
 ```shell
 make sim/adder_testbench.vpd
 ```
@@ -189,24 +246,51 @@ You can run XSIM on your laptop.
 
 #### Icarus Verilog
 Icarus Verilog is available on the lab machines.
-To install Icarus and gtkwave locally, refer to the appendix.
+You can also install Icarus Verilog and gtkwave on your laptop via Homebrew ([iverilog](https://formulae.brew.sh/formula/icarus-verilog), [gtkwave](https://formulae.brew.sh/cask/gtkwave)) or a package manager with Linux or WSL.
 
 Run `make sim/adder_testbench.fst` to launch a simulation with Icarus and to produce a FST waveform file.
-You can open the FST with gtkwave locally or on the lab machines.
+You can open the FST by running `gtkwave sim/adder_testbench.fst &` locally or on the lab machines.
 
-### Analyzing the Simulation
-After opening the waveform, you should be able to see the signals change as specified in the testbench.
-For example, you should see the `a` signal start at 1 and then become 0 after 10 ms.
+### Analyzing the Waveform
+Open the waveform file using DVE or `gtkwave`.
+**Plot** the `a`, `b`, and `sum` signals.
+You should be able to see the signals change as specified in the testbench.
+For example, you should see the `a` signal start at 1 and then become 0 after 2 ns.
 
-### Helpful Tip: Reloading Waveforms
+#### Helpful Tip: Reloading Waveforms
 When you re-run your simulation and you want to plot the newly generated signals in DVE or gtkwave, you don't need to close and reopen the waveform viewer.
 Use Shift + Ctrl + R in gtkwave or File → Reload Databases in DVE to reload the waveform file.
 
 ### Exhaustive Testing vs Random Testing
+In the `adder_testbench` we have selected just a few values of `a`, `b`, and `sum` to verify.
+Is it reasonable to exhaustively test all possible combinations of `a` and `b` for a 14-bit adder in simulation?
+At what adder width is it no longer feasible?
 
+You can use a `for` loop (similar to C) in the `initial` block to answer these questions.
+```verilog
+integer ai, bi;
+initial begin
+    for (ai = 0; ai < 1024; ai = ai + 1) begin
+        for (bi = 0; bi < 1024; bi = bi + 1) begin
+            a = ai;
+            b = bi;
+            // delay + assert
+        end
+    end
+end
+```
+
+When exhaustive testing isn't feasible, we often resort to random stimulus instead.
+In this case, you can use the `$urandom()` system task to generate an unsigned random number.
+
+```verilog
+  a = $urandom();
+  b = $urandom();
+```
 
 ## Build Your First Sequential Digital Circuit
-In this section, you will design a 4-bit wrap-around counter that increments every one second. The counter value is shown on the LEDS 0-3 of the PYNQ board.
+In this section, you will design a 4-bit wrap-around counter that increments every second.
+The counter value is shown on the LEDS 0-3 of the PYNQ board.
 
 ### Clock Sources
 Look at the [PYNQ Reference Manual](https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual).
@@ -215,7 +299,7 @@ We are using the 125 MHz clock from the Ethernet PHY IC on the PYNQ board that c
 
 Look at the `lab2/src/z1top.v` top-level module and its `CLK_125MHZ_FPGA` input.
 ```verilog
-module z1top_counter (
+module z1top (
     input CLK_125MHZ_FPGA,
     ...
 );
@@ -223,52 +307,75 @@ module z1top_counter (
 
 We can access the clock signal from our Verilog top-level module and can propagate this clock signal to any submodules that may need it.
 
-**In this file, comment out the following line to enable the counter circuit, and add it back to enable the adder circuits.**
+**In `z1top.v`, comment out line 2 to place the counter circuit on the FPGA**, like this:
 ```verilog
-// Comment out this line when you want to instantiate your counter
-`define ADDER_CIRCUIT
+1 | // Comment out this line when you want to instantiate your counter
+2 | // `define ADDER_CIRCUIT
 ```
 
 ### Build a 4-bit Counter
 
-Your circuit receives an input clock signal with a clock period of 8 ns (125 MHz). How many cycles of this clock signal are equivalent to one second? Note that
+Your circuit receives a clock signal with a period of 8 ns (125 MHz). How many clock cycles are equivalent to one second? Note:
 ```
 Time (sec) = Clock Period * Number of cycles
 ```
-Build a 4-bit counter that will increment its value every second (and loop back to 0 once all 4 bits are used), and display the corresponding value on bits `3:0` of the IO LEDs. There is one caveat: the counter only counts if a 'clock enable' signal (in this case, called `ce`) is 1. If it's 0, the counter should stay at the same value. Some initial code has been provided in `src/counter.v` to help you get started.
+
+Build a 4-bit counter that will increment its value every second (and loop back to 0 once all 4 bits are used), and display the corresponding value on bits `3:0` of the IO LEDs.
+There is one caveat: the counter only counts if a 'clock enable' signal (in this case, called `ce`) is 1.
+If it's 0, the counter should stay at the same value.
+
+Some initial code has been provided in `src/counter.v` to help you get started.
 
 ## Simulating the Counter
+See the simulation skeleton in `sim/counter_testbench.v`.
 
-This time, we'll ask you to write your own testbench! Set the clock enable signal on and off and step time forward to test your counter. A skeleton is provided for you in `sim/counter_testbench.v`. One snippet of code from this file is as follows:
-
+The skeleton has code to generate a clock for the DUT (`counter`):
 ```verilog
-initial clock = 0;
+reg clock = 0;
 always #(4) clock <= ~clock;
 ```
-
-This is the clock generation code.
-The clock signal needs to be generated in our testbench so it can be fed to the DUT.
-The initial statement sets the value of the clock net to 0 at the very start of the simulation.
+We set the value of the clock net to 0 at the very start of the simulation.
 The next line toggles the clock signal every 4ns, i.e. half period of 125 MHz clock.
+
+**Your task**: write a testbench for the `counter`.
+Set the clock enable (`ce`) signal on and off and step time forward to test your counter.
+Use `assert` or `if` statements to verify the proper behavior of the `counter`.
+
+You can use `repeat` and `@(event)` statements to advance time based on a clock edge.
+For example
+```verilog
+repeat (10) @(posedge clock);
+```
+will advance time until 10 rising clock edges are seen.
+
+Run the simulation in the same way:
+```bash
+make sim/counter_testbench.vpd  # vcs
+make sim/counter_testbench.fst  # iverilog
+```
 
 Note that you may want to increase how quickly the counter counts up, as simulation takes longer as the time your testbench simulates for increases.
 
 ### Analyzing the Simulation
-This time, you *may* see that your counter signal is just a red line. What's going on?
+When you open the waveform, you *may* see that your counter signal is just a red line. What's going on?
 
 #### Fixing Unknown Signals
-Blue lines (written as `Z' in Verilog) in a waveform viewer indicate high-impedance (unconnected) signals.
-We won't be using high-impedance signals in our designs, so blue lines or `Z' indicate something in our testbench or DUT isn't wired up properly.
+Blue lines (shown as `Z`) in a waveform viewer indicate high-impedance (unconnected) signals.
+We won't be using high-impedance signals in our designs, so blue lines or `Z` indicate something in our testbench or DUT isn't wired up properly.
 
-Red lines (written as `X' in Verilog) in a waveform viewer indicate unknown signals.
-At the start of simulation, all registers in your DUT contain unknown values (represented as `x').
-Since we don't have an explicit reset signal for our circuit to bring the `counter` to a defined value, it may be unknown for the entire simulation.
+Red lines (shown as `X`) in a waveform viewer indicate a signal has an unknown value.
+At the start of simulation, all registers in your DUT contain unknown values.
+Since we don't have an explicit reset signal to set registers inside the `counter` to a defined value, it may be unknown for the entire simulation.
 
-Let's fix this. In the future we will use a reset signal, but for now let's use a simpler technique. In `src/counter.v` add an initial value to any registers in your design.
+Let's fix this.
+In the future we will use a reset signal, but for now let's use a simpler technique.
+In `src/counter.v` add an initial value to any registers in your design.
 ```verilog
 // Original code:
 reg counter;
+```
 
+```verilog
 // Change to:
 reg counter = 0;
 ```
@@ -278,19 +385,21 @@ For this lab, when you add new registers in your counter or any other design mod
 
 **Do not set an initial value for a 'wire' type net; it will cause issues with synthesis, and may cause X's in simulation.**
 
-Now run the simulation again.
+Now run the simulation again until you feel confident in your design.
 
 ## Put the Counter on the FPGA
 
-Once you're confident that your counter works, program the FPGA using the make-based flow as before. This module connects your counter to the FPGA clock source and connects switch 0 as the clock enable signal. If done correctly, LEDs 0 through 3 should continually count up by 1 each second.
+Once you're confident that your counter works, program the FPGA using the make-based flow as before.
+`z1top` connects your counter to the 125 MHz clock and connects switch 0 as the clock enable signal.
+If done correctly, LEDs 0 through 3 should continually count up by 1 each second.
 
 This process, where we use simulation to verify the functionality of a module before programming it onto the FPGA, will be the one we use throughout this semester.
 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Sept 17th, 2021)
 To checkoff for this lab, have these things ready to show the TA:
-  - Your FPGA, programmed with the adders and with both RGB LEDs (LEDs 4 and 5) lit up showing correctness. Be ready to explain how your structural adder works.
-  - A waveform demonstrating the testbench you wrote that tests your counter and its clock enable functionality.
+  - Your FPGA, programmed with the adder circuit and with both RGB LEDs (LEDs 4 and 5) lit up showing correctness. Be ready to explain how your structural adder works.
+  - A waveform of the testbench you wrote for your counter and its clock enable functionality.
 
 No lab report this week!
 

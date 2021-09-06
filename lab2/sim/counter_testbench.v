@@ -20,8 +20,8 @@ module counter_testbench();
 
     initial begin
         `ifdef IVERILOG
-            $dumpfile("tone_generator_testbench.fst");
-            $dumpvars(0,tone_generator_testbench);
+            $dumpfile("counter_testbench.fst");
+            $dumpvars(0, counter_testbench);
         `endif
         `ifndef IVERILOG
             $vcdpluson;
