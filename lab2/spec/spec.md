@@ -344,7 +344,7 @@ The next line toggles the clock signal every 4ns, i.e. half period of 125 MHz cl
 Set the clock enable (`ce`) signal on and off and step time forward to test your counter.
 Use `assert` or `if` statements to verify the proper behavior of the `counter`.
 
-You can use `repeat` and `@(event)` statements to advance time based on a clock edge.
+You can use `repeat` and `@(event)` statements, in addition to `#(delay)`, to advance time based on a clock edge.
 For example
 ```verilog
 repeat (10) @(posedge clock);
@@ -357,7 +357,9 @@ make sim/counter_testbench.vpd  # vcs
 make sim/counter_testbench.fst  # iverilog
 ```
 
-Note that you may want to increase how quickly the counter counts up, as simulation takes longer as the time your testbench simulates for increases.
+*Note*: simulating even a simple circuit for 1 second can take a long time.
+You may want to modify your `counter` to count up every 1/25th of a second, so you can run simulation for a shorter duration.
+Once your design simulates successfully, you can change a constant in your `counter` to count up every second.
 
 ### Analyzing the Simulation
 When you open the waveform, you *may* see that your counter signal is just a red line. What's going on?
