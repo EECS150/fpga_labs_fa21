@@ -312,6 +312,7 @@ The DAC should also output a signal called `next_sample` to tell the outside wor
 
 ### DAC Testbench
 **Run the testbench** in `sim/dac_tb.v` to verify this functionality - check the waveform too.
+*Note*: the testbench sets `CYCLES_PER_WINDOW` to 8 to make the simulation easier to debug.
 
 ### Square Wave Generator
 Now we have a DAC, but we need to give it samples to play.

@@ -10,7 +10,7 @@ module dac_tb();
     reg [9:0] code;
     wire pwm, next_sample;
 
-    dac #(.CYCLES_PER_WINDOW(1024)) DUT (
+    dac #(.CYCLES_PER_WINDOW(8)) DUT (
         .clk(clk),
         .code(code),
         .pwm(pwm),
@@ -30,37 +30,37 @@ module dac_tb();
             // Thread to drive code and check output
             begin
                 code = 0;
-                repeat (1024) begin
+                repeat (8) begin
                     @(posedge clk); #1;
-                    assert(pwm == 0);
+                    assert(pwm == 0) else $error("pwm should be 0 when code is 0");
                 end
 
-                code = 1023;
-                repeat (1024) begin
+                code = 7;
+                repeat (8) begin
                     @(posedge clk); #1;
-                    assert(pwm == 1);
+                    assert(pwm == 1) else $error("pwm should be 1 when code is 7");
                 end
 
-                code = 511;
+                code = 3;
                 repeat (2) begin
-                    repeat (512) begin
+                    repeat (4) begin
                         @(posedge clk); #1;
-                        assert(pwm == 1);
+                        assert(pwm == 1) else $error("pwm should be 1 on first half of code = 3");
                     end
-                    repeat (512) begin
+                    repeat (4) begin
                         @(posedge clk); #1;
-                        assert(pwm == 0);
+                        assert(pwm == 0) else $error("pwm should be 0 on second half of code = 3");
                     end
                 end
             end
             // Thread to check next_sample
             begin
                 repeat (4) begin
-                    assert(next_sample == 0);
-                    repeat (1023) @(posedge clk); #1;
-                    assert(next_sample == 1);
+                    assert(next_sample == 0) else $error("next_sample should start at 0");
+                    repeat (7) @(posedge clk); #1;
+                    assert(next_sample == 1) else $error("next_sample should become 1 after 7 cycles");
                     @(posedge clk); #1;
-                    assert(next_sample == 0);
+                    assert(next_sample == 0) else $error("next_sample should go back to 0 on the 8th cycle");
                 end
             end
         join
