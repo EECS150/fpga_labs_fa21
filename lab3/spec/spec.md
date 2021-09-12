@@ -132,46 +132,98 @@ However, there are a few issues with using the raw button signals in our circuit
   - When a button is pressed, the connection of the button net to VDD isn't instant and clean (the button *bounces*): we need to add hysteresis
 
 ### Synchronizer
-In Verilog (RTL), digital signals are either 0's or 1's.
-In a digital circuit, a 0 or 1 corresponds to a low or high voltage.
+In synthesizable Verilog (RTL), digital signals are either 0's or 1's (low/high voltage level).
 If the circuit is well designed and timed (fully synchronous), we only have to worry about the low and high voltage states.
 
-The signals coming from the push buttons and slide switches on the PYNQ board don't have an associated clock (asynchronous).
-When the button signals are put through a register, its hold or setup time may be violated.
-This may put that register into a \textit{metastable} state (Figure \ref{fig:metastability}).
+The signals coming from the push buttons and slide switches on the PYNQ board don't have an associated clock (they are asynchronous).
+When the button signals are put through a register, its hold or setup time requirements may be violated.
+This may put that register into a *metastable* state.
 
-\begin{figure}
-  \centerline{\includegraphics[height=3cm]{figs/metastability.png}}
-  \caption{The `ball on a hill' metaphor for metastability. If a register's timing constraints are violated, its output voltage oscillates and after some time unpredictably settles to a stable state.}
-  \label{fig:metastability}
-\end{figure}
+<p align=center>
+  <img height=170 src="./figs/metastability.png"/>
 
-%In a fully synchronous circuit, the timing tools will determine the fastest clock frequency under which the setup time constraints are all respected and the routing tools will ensure that any hold time constraints are handled.
-An asynchronous signal could violate timing constraints, and cause a `mid-rail' voltage from a register to propagate to other logic elements.
-This can cause catastrophic timing violations that the tools never saw coming.
+<p align=center>
+  <em>The `ball on a hill' metaphor for metastability. If a register's timing constraints are violated, its output voltage oscillates and after some time unpredictably settles to a stable state.</em>
+</p>
 
-We will implement a synchronizer circuit that will safely bring an asynchronous signal into a synchronous circuit.
+In a fully synchronous circuit, the timing tools will determine the fastest clock frequency under which the setup time constraints are all respected and the routing tools will ensure that any hold time constraints are handled.
+An asynchronous signal could violate timing constraints, make the output of the register metastable, and violate more downstream constraints: making the circuit fail.
+
+We will implement a synchronizer circuit that will safely bring an asynchronous signal into a clock domain.
 The synchronizer needs to have a very small probability of allowing metastability to propagate into our synchronous circuit.
 
-This synchronizer circuit for this lab is relatively simple (Figure \ref{fig:synchronizer}).
+The synchronizer circuit for this lab is simple.
+<p align=center>
+  <img height=100 src="./figs/synchronizer.png"/>
+</p>
+<p align=center>
+  <em>1-bit 2 Flip-Flop Synchronizer</em>
+</p>
+
 For synchronizing one bit, it is a pair of flip-flops connected serially.
 
-\begin{figure}[H]
-  \vspace{0.5cm}
-  \centerline{\includegraphics[width=0.4\textwidth]{figs/synchronizer.png}}
-  \caption{1-bit 2 Flip-Flop Synchronizer}
-  \label{fig:synchronizer}
-\end{figure}
+**Edit** `lab2/src/synchronizer.v` to implement the two flip-flop synchronizer.
+This module is parameterized by a `WIDTH` parameter which controls the number of one-bit signals to synchronize.
 
-Edit \verb|lab2/src/synchronizer.v| to implement the two flip-flop synchronizer.
-This module is parameterized by a \verb|width| parameter which controls the number of one-bit signals to synchronize.
-
-\subsubsection{Synchronizer Simulation}
-A testbench is provided in \verb|lab2/sim/sync_tb.v|. Run it using Vivado simulation.
+A testbench is provided in `lab2/sim/sync_tb.v`. **Run the testbench** with `make sim/sync_tb.vpd` (VCS) or `make sim/sync_tb.fst` (Icarus Verilog) as usual.
 
 ### Edge Detector
+We want to convert the low-to-high transition of a button press to a 1 clock cycle wide pulse that the rest of our design can use.
+
+**Implement** a parameterized-width edge detector in `lab2/src/edge_detector.v`.
+
+A testbench is provided in `lab2/sim/edge_detector_tb.v`. **Run it as usual**.
+
+The edge detector testbench tests that your `edge_detector` outputs a 1 cycle wide pulse when its corresponding input transitions from 0 to 1.
+You should **visually inspect the waveform** to verify the correct behavior too.
 
 ### Debouncer
+<p align=center>
+  <img height=200 src="./figs/debouncer.png"/>
+</p>
+<p align=center>
+  <em>Architecture of a simple debouncer circuit. <a href="http://www.labbookpages.co.uk/electronics/debounce.html">Source</a></em>
+</p>
+
+The debouncer circuit takes a button's glitchy digital signal and outputs a clean signal indicating a single button press.
+The reason for this circuit is seen in the figure below, whichi 
+
+\begin{figure}[H]
+  \centerline{\includegraphics[width=0.5\textwidth]{figs/bouncing.png}}
+\end{figure}
+
+When we press or depress a button, the signal doesn't behave like a perfect step function.
+Instead the button signal is glitchy due to mechanical ``bounce''.
+If we naively used the button signal directly there would be many spurious ``button presses".
+
+Look at \verb|lab2/src/debouncer.v|.
+This is a parameterized debouncer which can debounce \verb|width| signals at a time.
+The other parameters reference the constants used in the circuit from the prelab reading.
+
+The debouncer consists of:
+\begin{enumerate}
+  \item \textbf{Sample Pulse Generator} - Tells our saturating counter when to sample the input signal. It should output a 1, every \verb|SAMPLE_CNT_MAX| clock cycles. By default \verb|SAMPLE_CNT_MAX| is set to 25000.
+  \item \textbf{Saturating Counter} - This is a counter that counts up to \verb|PULSE_CNT_MAX|.
+    If the sample pulse is high at a clock edge, increment the counter if the input signal is also high, else reset the counter to 0.
+    Once the saturating counter reaches \verb|PULSE_CNT_MAX|, it should hold that value indefinitely until the sampled input signal becomes 0.
+    The \verb|debounced_signal| of your debouncer should be an equality check between the saturating counter and \verb|PULSE_CNT_MAX|.
+\end{enumerate}
+
+You can use the same sample pulse generator for all input signals into your \verb|debouncer|, but you should have a separate saturating counter per input signal.
+
+\subsubsection{Debouncer Simulation}
+A testbench has been provided in \verb|lab2/sim/debouncer_tb.v|. Make sure you understand what the testbench is doing. Run it as usual.
+
+The debouncer testbench has 2 tests:
+\begin{enumerate}
+  \item Verifies that if a glitchy signal initially bounces and then stays high for \textbf{less} than the saturation time, that the debouncer output never goes high.
+  \item Verifies that if a glitchy signal initially bounces and then stays high for \textbf{more} than the saturation time, that the debouncer goes high and stays high until the glitchy signal goes low.
+\end{enumerate}
+
+Pay attention to the printouts in the \emph{TCL Console} to see if tests are passed or failed.
+
+
+The debouncer will *smooth-out* the button press signal from the sychronizer.
 
 Here is an \textit{example} of creating a 2D array of \emph{reg} (works for \emph{wires} too):
 
