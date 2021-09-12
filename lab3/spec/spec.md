@@ -323,7 +323,8 @@ The `code` should be held constant while `next_sample` is low, and on the cycle 
 The square wave generator should output the codes for a 440 Hz square wave.
 *Note*: `125e6 / 1024 / 440 / 2 = 138.7 ~ 139`
 
-When the square wave is high, the `code` should be 767 (3/4 level), and when the square wave is low, the `code` should be 255 (1/4 level).
+When the square wave is high, the `code` should be 562, and when the square wave is low, the `code` should be 462.
+Avoid using the full `code` range from 0-1023 to keep the volume low.
 
 ### Square Wave Generator Testbench
 We have provided a simple testbench in `sim/sq_wave_gen_tb.v` which pulls about 1 second worth of samples (`125e6 / 1024 = 122070`) from your `sq_wave_gen` module and writes them to a file in `sim/codes.txt`.
@@ -339,6 +340,7 @@ Keep your volume low - square waves are harsh.
 **Look** at `src/z1top.v` to see how the `dac` and `sq_wave_gen` are connected.
 Use the standard flow to **generate a bitstream**.
 **Program** the FPGA, plug headphones into the audio out port, and verify that you hear a 440 Hz tone without any glitching.
+Use `SWITCHES[1]` to toggle the sound on and off.
 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Sept 24th, 2021)
