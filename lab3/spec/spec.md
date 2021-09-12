@@ -252,6 +252,7 @@ Then **look** at `src/counter.v` which implements a simple up/down counter contr
 **Observe** how these 2 modules are connected at the top-level in `src/z1top.v`.
 
 **Run the FPGA build flow** to put the counter on the FPGA and verify it works as expected.
+You may get some `%Warning-WIDTH` errors in your `debouncer` from running `make lint`: these can be safely ignored if they involve the module parameters.
 
 #### Counter Testbench
 **Write** a testbench from scratch for `counter.v` in `sim/counter_tb.v`.
