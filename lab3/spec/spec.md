@@ -201,13 +201,13 @@ The debouncer circuit takes a button's glitchy digital signal and outputs a clea
 
 The debouncer consists of:
   - **Sample Pulse Generator** - Tells our saturating counter when to sample the input signal. It should output a 1, every `SAMPLE_CNT_MAX` clock cycles. By default `SAMPLE_CNT_MAX` is set to 65000.
-  - **Saturating Counter** - This is a counter that counts until `PULSE_CNT_MAX` (and saturates).
+  - **Saturating Counter** - This is a counter that counts up to and including `PULSE_CNT_MAX` (and saturates).
 
 The circuit implementation has the following behavior:
   - All counters should start at 0.
   - If the sample pulse generator emits a 1 on a clock edge, increment the saturating counter if the input signal is also 1, else reset the saturating counter to 0.
-  - Once the saturating counter reaches `PULSE_CNT_MAX-1`, it should hold that value indefinitely until the sampled input signal becomes 0.
-  - The `debounced_signal` of your debouncer should be an equality check between the saturating counter and `PULSE_CNT_MAX-1`.
+  - Once the saturating counter reaches `PULSE_CNT_MAX`, it should hold that value indefinitely until the sampled input signal becomes 0.
+  - The `debounced_signal` of your debouncer should be an equality check between the saturating counter and `PULSE_CNT_MAX`.
 
 **Implement** the debouncer in `lab2/src/debouncer.v`.
 You can use the same sample pulse generator for all input signals into your `debouncer`, but you should have a separate saturating counter per input signal.
