@@ -30,26 +30,31 @@ module dac_tb();
             // Thread to drive code and check output
             begin
                 code = 0;
-                repeat (8) begin
-                    @(posedge clk); #1;
+                @(posedge clk); #1;
+                repeat (7) begin
                     assert(pwm == 0) else $error("pwm should be 0 when code is 0");
+                    @(posedge clk); #1;
                 end
+                assert(pwm == 0) else $error("pwm should be 0 when code is 0");
 
                 code = 7;
-                repeat (8) begin
-                    @(posedge clk); #1;
+                @(posedge clk); #1;
+                repeat (7) begin
                     assert(pwm == 1) else $error("pwm should be 1 when code is 7");
+                    @(posedge clk); #1;
                 end
+                assert(pwm == 1) else $error("pwm should be 1 when code is 7");
 
-                code = 3;
                 repeat (2) begin
-                    repeat (4) begin
-                        @(posedge clk); #1;
+                    code = 3;
+                    @(posedge clk); #1;
+                    repeat (3) begin
                         assert(pwm == 1) else $error("pwm should be 1 on first half of code = 3");
+                        @(posedge clk); #1;
                     end
                     repeat (4) begin
-                        @(posedge clk); #1;
                         assert(pwm == 0) else $error("pwm should be 0 on second half of code = 3");
+                        @(posedge clk); #1;
                     end
                 end
             end
