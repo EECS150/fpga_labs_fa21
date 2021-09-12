@@ -7,7 +7,7 @@ module dac_tb();
     always #(`CLK_PERIOD/2) clk = ~clk;
 
     // I/O
-    reg [9:0] code;
+    reg [2:0] code;
     wire pwm, next_sample;
 
     dac #(.CYCLES_PER_WINDOW(8)) DUT (
