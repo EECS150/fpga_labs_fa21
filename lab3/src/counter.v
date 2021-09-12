@@ -1,5 +1,5 @@
 module counter #(
-  parameter CYCLES_PER_SECOND = 125_000_000
+    parameter CYCLES_PER_SECOND = 125_000_000
 )(
     input clk,
     input ce,
