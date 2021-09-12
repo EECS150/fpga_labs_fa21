@@ -271,7 +271,72 @@ In your testbench, you can **override** `CYCLES_PER_SECOND` when instantiating y
 <!-- We'd like suggest that you think about the structure of your design ahead of coding. The debouncer circuit figure above is a great example. Remember that Verilog coding is all about describing your hardware circuit! Sketch a block diagram of your mode counter circuit in terms of the \texttt{button\_parser} block and some register blocks from \verb|lib/EECS151.v| as you see fit. Label the relevant input and output signals. Feel free to use any logic gates, MUXes, or adders. Don't worry about listing all the details. Submit your sketched diagram in your report. -->
 
 ## PWM DAC
+### Audio Out
+Look at Section 14 of the [Pynq Reference Manual](https://reference.digilentinc.com/reference/programmable-logic/pynq-z1/reference-manual) which describes the mono audio out feature on the Pynq board.
 
+<p align=center>
+  <img height=200 src="./figs/audio_out.png" />
+</p>
+
+The FPGA pin R18 is connected to the `AUD_PWM` net.
+The FPGA can drive this net with a PWM signal which goes through a low-pass filter and is driven into the audio jack on the Pynq board.
+
+There's also an `AUD_SD` net connected to FPGA pin T17, which turns off the opamps in the low-pass filter.
+Setting `AUD_SD` to 1 enables the audio output.
+
+Find these signals in the `src/z1top.xdc` file, and note how they appear in the `src/z1top.v` port list.
+
+### PWM Generator as DAC
+Since we have a fast 125 MHz clock, we can generate a PWM signal to drive the `AUD_PWM` net.
+
+<p align=center>
+  <img height=150 src="./figs/pwm.png" />
+</p>
+
+Let's make the pulse window **1024 cycles** of the 125 MHz clock.
+This gives us 10 bits of resolution, and gives a PWM frequency of `125MHz / 1024 = 122 kHz` which is much greater than the filter cutoff.
+
+**Implement** the circuit in `src/dac.v` to drive the `pwm` output based on the `code` input.
+The `code` is the number of clock cycles in the pulse window during which the `pwm` output should be high.
+
+For example:
+  - If `code = 0`, `pwm` should be 0 for the entire pulse window (1024 cycles)
+  - If `code = 1023`, `pwm` should be 1 for the entire pulse window
+  - If `code = 511`, `pwm` should be 1 for cycles 0 - 511 and 0 for cycles 512-1023
+
+You can assume that `code` will only change every 1024 cycles.
+
+The DAC should also output a signal called `next_sample` to tell the outside world that it can safely change the `code` before another pulse window begins.
+`next_sample` should be 1 on the final cycle of the pulse window.
+
+### DAC Testbench
+**Run the testbench** in `sim/dac_tb.v` to verify this functionality - check the waveform too.
+
+### Square Wave Generator
+Now we have a DAC, but we need to give it samples to play.
+**Write a square wave sample generator** in `src/sq_wave_gen.v` which takes a 125 MHz clock and the `next_sample` signal from the DAC, and outputs the `code` for it to play.
+
+The `code` should be held constant while `next_sample` is low, and on the cycle when `next_sample` is high, the `code` can change on the next rising edge.
+
+The square wave generator should output the codes for a 440 Hz square wave.
+*Note*: `125e6 / 1024 / 440 / 2 = 138.7 ~ 139`
+
+When the square wave is high, the `code` should be 767 (3/4 level), and when the square wave is low, the `code` should be 255 (1/4 level).
+
+### Square Wave Generator Testbench
+We have provided a simple testbench in `sim/sq_wave_gen_tb.v` which pulls about 1 second worth of samples (`125e6 / 1024 = 122070`) from your `sq_wave_gen` module and writes them to a file in `sim/codes.txt`.
+
+You can run a script to convert this text file to an audio file:
+`cd lab3 && ../scripts/audio_from_sim sim/codes.txt`
+
+Play the `output.wav` audio file using `play output.wav`.
+Verify this sounds like a 440 Hz square wave; [use this website](https://www.szynalski.com/tone-generator/) for reference.
+Keep your volume low - square waves are harsh.
+
+### On the FPGA
+**Look** at `src/z1top.v` to see how the `dac` and `sq_wave_gen` are connected.
+Use the standard flow to **generate a bitstream**.
+**Program** the FPGA, plug headphones into the audio out port, and verify that you hear a 440 Hz tone without any glitching.
 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Sept 24th, 2021)

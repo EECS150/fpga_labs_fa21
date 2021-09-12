@@ -28,6 +28,14 @@ module debouncer_tb();
 
     reg test0_done = 0;
     initial begin
+        `ifdef IVERILOG
+            $dumpfile("debouncer_tb.fst");
+            $dumpvars(0, debouncer_tb);
+        `endif
+        `ifndef IVERILOG
+            $vcdpluson;
+        `endif
+
         glitchy_signal = 0;
         repeat (5) @(posedge clk);
         #1;
@@ -98,6 +106,9 @@ module debouncer_tb();
         repeat (10) @(posedge clk);
 
         $display("Done!");
+        `ifndef IVERILOG
+            $vcdplusoff;
+        `endif
         $finish();
     end
 

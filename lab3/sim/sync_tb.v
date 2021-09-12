@@ -20,6 +20,14 @@ module sync_tb();
     );
 
     initial begin
+        `ifdef IVERILOG
+            $dumpfile("sync_tb.fst");
+            $dumpvars(0, sync_tb);
+        `endif
+        `ifndef IVERILOG
+            $vcdpluson;
+        `endif
+
         // We use fork-join to create 2 threads that operate in parallel
         fork
             // This first thread will send a test signal into the DUT's async_signal input
@@ -48,6 +56,10 @@ module sync_tb();
         if (sync_signal !== 1'b1) $error("Check 6 failed");
 
         $display("Test finished");
+
+        `ifndef IVERILOG
+            $vcdplusoff;
+        `endif
         $finish();
     end
 endmodule

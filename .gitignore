@@ -6,3 +6,5 @@ ucli.key
 *.vpd
 *.tb
 *.tb.daidir
+*.wav
+*.txt

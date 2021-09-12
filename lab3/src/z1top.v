@@ -4,7 +4,9 @@ module z1top (
     input CLK_125MHZ_FPGA,
     input [3:0] BUTTONS,
     input [1:0] SWITCHES,
-    output [5:0] LEDS
+    output [5:0] LEDS,
+    output AUD_PWM,
+    output AUD_SD
 );
     assign LEDS[5:4] = 2'b11;
 
@@ -30,5 +32,23 @@ module z1top (
         .ce(SWITCHES[0]),
         .buttons(buttons_pressed),
         .leds(LEDS[3:0])
+    );
+
+    assign AUD_SD = SWITCHES[1]; // 1 = audio enabled
+    wire [9:0] code;
+    wire next_sample;
+    dac #(
+        .CYCLES_PER_WINDOW(1024)
+    ) dac (
+        .clk(CLK_125MHZ_FPGA),
+        .code(code),
+        .next_sample(next_sample),
+        .pwm(AUD_PWM)
+    );
+
+    sq_wave_gen gen (
+        .clk(CLK_125MHZ_FPGA),
+        .next_sample(next_sample),
+        .code(code)
     );
 endmodule
