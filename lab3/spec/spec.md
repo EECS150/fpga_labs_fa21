@@ -21,7 +21,6 @@ git pull origin master
 
 ### Verilog Reading
 Look through these documents if you haven't already.
-You should have a decent understanding of Verilog for this lab.
 
 - [Verilog Primer Slides](https://inst.eecs.berkeley.edu/~eecs151/fa21/files/verilog/Verilog_Primer_Slides.pdf) - overview of the Verilog language
 - [wire vs reg](https://inst.eecs.berkeley.edu/~eecs151/fa21/files/verilog/wire_vs_reg.pdf) - the differences between `wire` and `reg` nets and when to use each one
@@ -32,10 +31,12 @@ In this lab we will:
 
 - Build input conditioning circuits so we can safely use the buttons as inputs to sequential circuits
   - Write parameterized Verilog modules
-- Use fork/join simulation threading and file IO in Verilog testbenches
+  - Use fork/join simulation threading in Verilog testbenches
+  - Test the button signal chain on the FPGA
 - Create an audio "DAC" using a PWM generator
 - Write a square wave signal generator
-- Test the circuit on the FPGA
+  - Test the circuit on the FPGA
+  <!-- - Enable variable frequency generation -->
 
 ## Additional Testbench Constructs
 The testbenches provided in this lab use some constructs we haven't covered yet.
@@ -178,6 +179,19 @@ The edge detector testbench tests that your `edge_detector` outputs a 1 cycle wi
 You should **visually inspect the waveform** to verify the correct behavior too.
 
 ### Debouncer
+When we press or depress a button, the signal doesn't behave like a perfect step function.
+Instead the button signal is glitchy due to mechanical 'bounce'.
+
+<p align=center>
+  <img height=170 src="./figs/bouncing.png"/>
+</p>
+<p align=center>
+  <em>Scope waveform of button bounce when pressing and depressing a button.</em>
+</p>
+
+If we naively used the button signal directly, there would be many spurious "button presses".
+The debouncer circuit takes a button's glitchy digital signal and outputs a clean high-to-low signal indicating a single button press.
+
 <p align=center>
   <img height=200 src="./figs/debouncer.png"/>
 </p>
@@ -185,71 +199,86 @@ You should **visually inspect the waveform** to verify the correct behavior too.
   <em>Architecture of a simple debouncer circuit. <a href="http://www.labbookpages.co.uk/electronics/debounce.html">Source</a></em>
 </p>
 
-The debouncer circuit takes a button's glitchy digital signal and outputs a clean signal indicating a single button press.
-The reason for this circuit is seen in the figure below, whichi 
-
-\begin{figure}[H]
-  \centerline{\includegraphics[width=0.5\textwidth]{figs/bouncing.png}}
-\end{figure}
-
-When we press or depress a button, the signal doesn't behave like a perfect step function.
-Instead the button signal is glitchy due to mechanical ``bounce''.
-If we naively used the button signal directly there would be many spurious ``button presses".
-
-Look at \verb|lab2/src/debouncer.v|.
-This is a parameterized debouncer which can debounce \verb|width| signals at a time.
-The other parameters reference the constants used in the circuit from the prelab reading.
-
 The debouncer consists of:
-\begin{enumerate}
-  \item \textbf{Sample Pulse Generator} - Tells our saturating counter when to sample the input signal. It should output a 1, every \verb|SAMPLE_CNT_MAX| clock cycles. By default \verb|SAMPLE_CNT_MAX| is set to 25000.
-  \item \textbf{Saturating Counter} - This is a counter that counts up to \verb|PULSE_CNT_MAX|.
-    If the sample pulse is high at a clock edge, increment the counter if the input signal is also high, else reset the counter to 0.
-    Once the saturating counter reaches \verb|PULSE_CNT_MAX|, it should hold that value indefinitely until the sampled input signal becomes 0.
-    The \verb|debounced_signal| of your debouncer should be an equality check between the saturating counter and \verb|PULSE_CNT_MAX|.
-\end{enumerate}
+  - **Sample Pulse Generator** - Tells our saturating counter when to sample the input signal. It should output a 1, every `SAMPLE_CNT_MAX` clock cycles. By default `SAMPLE_CNT_MAX` is set to 65000.
+  - **Saturating Counter** - This is a counter that counts until `PULSE_CNT_MAX` (and saturates).
 
-You can use the same sample pulse generator for all input signals into your \verb|debouncer|, but you should have a separate saturating counter per input signal.
+The circuit implementation has the following behavior:
+  - All counters should start at 0.
+  - If the sample pulse generator emits a 1 on a clock edge, increment the saturating counter if the input signal is also 1, else reset the saturating counter to 0.
+  - Once the saturating counter reaches `PULSE_CNT_MAX-1`, it should hold that value indefinitely until the sampled input signal becomes 0.
+  - The `debounced_signal` of your debouncer should be an equality check between the saturating counter and `PULSE_CNT_MAX-1`.
 
-\subsubsection{Debouncer Simulation}
-A testbench has been provided in \verb|lab2/sim/debouncer_tb.v|. Make sure you understand what the testbench is doing. Run it as usual.
+**Implement** the debouncer in `lab2/src/debouncer.v`.
+You can use the same sample pulse generator for all input signals into your `debouncer`, but you should have a separate saturating counter per input signal.
 
-The debouncer testbench has 2 tests:
-\begin{enumerate}
-  \item Verifies that if a glitchy signal initially bounces and then stays high for \textbf{less} than the saturation time, that the debouncer output never goes high.
-  \item Verifies that if a glitchy signal initially bounces and then stays high for \textbf{more} than the saturation time, that the debouncer goes high and stays high until the glitchy signal goes low.
-\end{enumerate}
-
-Pay attention to the printouts in the \emph{TCL Console} to see if tests are passed or failed.
-
-
-The debouncer will *smooth-out* the button press signal from the sychronizer.
-
-Here is an \textit{example} of creating a 2D array of \emph{reg} (works for \emph{wires} too):
-
-\begin{minted}[tabsize=4]{verilog}
+#### Debouncer Implementation Notes
+You may find it helpful to create a 2D `reg` to hold the saturating counters for each input.
+Here is an example:
+```verilog
 reg [7:0] arr [3:0]; // 4 X 8-bit array
 arr[0]; // First byte from arr (8 bits)
 arr[1][2]; // Third bit of 2nd byte from arr (1 bit)
-\end{minted}
+```
+
+A testbench is provided in `lab2/sim/debouncer_tb.v`. Make sure you **understand what the testbench is doing**. **Run it** as usual.
+
+The debouncer testbench has 2 tests:
+
+  - Verifies that if a glitchy signal initially bounces and then stays high for *less* than the saturation time, that the debouncer output never goes high.
+  - Verifies that if a glitchy signal initially bounces and then stays high for *more* than the saturation time, that the debouncer goes high and stays high until the glitchy signal goes low.
+
+#### Debouncer Testbench Notes
+If you are seeing issues where certain registers are red lines (X's), make sure you give them an initial state.
+Use the following code to initialize a 2D reg in `debouncer.v`:
+
+```verilog
+reg [X:X] saturating_counter [X:X];
+integer k;
+initial begin
+  for (k = 0; k < WIDTH; k = k + 1) begin
+    saturating_counter[k] = 0;
+  end
+end
+```
+### Button Parser on the FPGA
+Now that we have tested all the modules required to produce a clean, stable button press signal.
+It's time to put everything together.
+
+#### Counter with Button Parser
+**Look** at `src/button_parser.v` which combines the synchronizer, debouncer, and edge detector in a chain.
+
+Then **look** at `src/counter.v` which implements a simple up/down counter controlled by button presses.
+**Observe** how these 2 modules are connected at the top-level in `src/z1top.v`.
+
+**Run the FPGA build flow** to put the counter on the FPGA and verify it works as expected.
+
+#### Counter Testbench
+**Write** a testbench from scratch for `counter.v` in `sim/counter_tb.v`.
+Make sure you use asserts or `$error` statements that verify the correct functionality.
+Use the provided testbenches and your `counter_testbench` from lab2 as a guide.
+
+#### Play and Pause your Counter
+Right now, your `counter` is in a static mode; you can only increment or decrement the counter value for each button press.
+**Modify** `counter.v` such that when you press `buttons[2]`, your counter starts incrementing every one second (running mode), and pauses when you press BTN2 again (static mode).
+
+You can incorporate the code your wrote from lab2.
+Use the `CYCLES_PER_SECOND` parameter in `counter.v` to set the threshold for your cycle counter.
+
+**Extend** `sim/counter_tb.v` to test changing between running and static mode.
+In your testbench, you can **override** `CYCLES_PER_SECOND` when instantiating your `counter` to make simulation fast.
+
+<!-- We'd like suggest that you think about the structure of your design ahead of coding. The debouncer circuit figure above is a great example. Remember that Verilog coding is all about describing your hardware circuit! Sketch a block diagram of your mode counter circuit in terms of the \texttt{button\_parser} block and some register blocks from \verb|lib/EECS151.v| as you see fit. Label the relevant input and output signals. Feel free to use any logic gates, MUXes, or adders. Don't worry about listing all the details. Submit your sketched diagram in your report. -->
+
+## PWM DAC
+
 
 ## Lab Deliverables
-### Lab Checkoff (due: 11AM, Friday Sept 10th, 2021)
-- Please submit answers for the questions in [Understanding Your FPGA](#user-content-understanding-your-fpga) to the [Gradescope assignment](https://www.gradescope.com/courses/295948/assignments/1451298).
-
+### Lab Checkoff (due: 11AM, Friday Sept 24th, 2021)
 To checkoff for this lab, have these things ready to show the TA:
-  - Demonstrate that you can generate a bitstream from the given sample code using Vivado. In addition, please show that you can program your FPGA board correctly.
-  - Modify the sample code to implement a 4-input logic function of your choice. Use the four buttons (`BUTTONS[3:0]`) as inputs, and the the 2nd LED as output (`LEDS[1]`). Demonstrate that your logic circuit works correctly on the FPGA board.
-
-*Note*: You can declare wires in Verilog to hold intermediate boolean signals and drive them using `and` and `or` gates.
-```verilog
-input in1, in2, in3;
-output out;
-wire a, b;
-and(a, in1, in2);
-or(b, a, in3);
-and(out, b, a);
-```
+  - A counter testbench and its waveform
+  - A functioning button parser that you can use to control the counter in running and static mode
+  - A functioning DAC that can emit a fixed 440Hz square wave tone
 
 ## Acknowledgement
 This lab is the result of the work of many EECS151/251 GSIs over the years including:

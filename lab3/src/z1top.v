@@ -1,14 +1,11 @@
 `define CLOCK_FREQ 125_000_000
 
-`define BUTTON_COUNTER
-
 module z1top (
     input CLK_125MHZ_FPGA,
     input [3:0] BUTTONS,
     input [1:0] SWITCHES,
     output [5:0] LEDS
 );
-`ifdef BUTTON_COUNTER
     assign LEDS[5:4] = 2'b11;
 
     // Button parser test circuit
@@ -28,22 +25,10 @@ module z1top (
         .out(buttons_pressed)
     );
 
-    reg [3:0] counter;
-
-    assign LEDS[3:0] = counter;
-    always @(posedge CLK_125MHZ_FPGA) begin
-        if (buttons_pressed[0])
-            counter <= counter + 4'd1;
-        else if (buttons_pressed[1])
-            counter <= counter - 4'd1;
-        else if (buttons_pressed[2])
-            counter <= counter << 1;
-        else if (buttons_pressed[3])
-            counter <= 4'd0;
-        else
-            counter <= counter;
-    end
-`else
-
-`endif
+    counter count (
+        .clk(CLK_125MHZ_FPGA),
+        .ce(SWITCHES[0]),
+        .buttons(buttons_pressed),
+        .leds(LEDS[3:0])
+    );
 endmodule
