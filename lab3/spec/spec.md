@@ -163,17 +163,17 @@ The synchronizer circuit for this lab is simple.
 
 For synchronizing one bit, it is a pair of flip-flops connected serially.
 
-**Edit** `lab2/src/synchronizer.v` to implement the two flip-flop synchronizer.
+**Edit** `lab3/src/synchronizer.v` to implement the two flip-flop synchronizer.
 This module is parameterized by a `WIDTH` parameter which controls the number of one-bit signals to synchronize.
 
-A testbench is provided in `lab2/sim/sync_tb.v`. **Run the testbench** with `make sim/sync_tb.vpd` (VCS) or `make sim/sync_tb.fst` (Icarus Verilog) as usual.
+A testbench is provided in `lab3/sim/sync_tb.v`. **Run the testbench** with `make sim/sync_tb.vpd` (VCS) or `make sim/sync_tb.fst` (Icarus Verilog) as usual.
 
 ### Edge Detector
 We want to convert the low-to-high transition of a button press to a 1 clock cycle wide pulse that the rest of our design can use.
 
-**Implement** a parameterized-width edge detector in `lab2/src/edge_detector.v`.
+**Implement** a parameterized-width edge detector in `lab3/src/edge_detector.v`.
 
-A testbench is provided in `lab2/sim/edge_detector_tb.v`. **Run it as usual**.
+A testbench is provided in `lab3/sim/edge_detector_tb.v`. **Run it as usual**.
 
 The edge detector testbench tests that your `edge_detector` outputs a 1 cycle wide pulse when its corresponding input transitions from 0 to 1.
 You should **visually inspect the waveform** to verify the correct behavior too.
@@ -209,7 +209,7 @@ The circuit implementation has the following behavior:
   - Once the saturating counter reaches `PULSE_CNT_MAX`, it should hold that value indefinitely until the sampled input signal becomes 0.
   - The `debounced_signal` of your debouncer should be an equality check between the saturating counter and `PULSE_CNT_MAX`.
 
-**Implement** the debouncer in `lab2/src/debouncer.v`.
+**Implement** the debouncer in `lab3/src/debouncer.v`.
 You can use the same sample pulse generator for all input signals into your `debouncer`, but you should have a separate saturating counter per input signal.
 
 #### Debouncer Implementation Notes
@@ -221,7 +221,7 @@ arr[0]; // First byte from arr (8 bits)
 arr[1][2]; // Third bit of 2nd byte from arr (1 bit)
 ```
 
-A testbench is provided in `lab2/sim/debouncer_tb.v`. Make sure you **understand what the testbench is doing**. **Run it** as usual.
+A testbench is provided in `lab3/sim/debouncer_tb.v`. Make sure you **understand what the testbench is doing**. **Run it** as usual.
 
 The debouncer testbench has 2 tests:
 
