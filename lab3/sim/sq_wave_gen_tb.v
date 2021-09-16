@@ -17,6 +17,7 @@ module sq_wave_gen_tb();
     );
 
     integer code_file;
+    integer next_sample_fetch;
     initial begin
         `ifdef IVERILOG
             $dumpfile("sq_wave_gen_tb.fst");
@@ -32,6 +33,10 @@ module sq_wave_gen_tb();
         @(posedge clk); #1;
 
         repeat (122000) begin
+            // Pull next_sample every X cycles where X is a random number in [2, 9]
+            next_sample_fetch = ($urandom() % 8) + 2;
+            repeat (next_sample_fetch) @(posedge clk);
+            #1;
             next_sample = 1;
             @(posedge clk); #1;
             $fwrite(code_file, "%d\n", code);
