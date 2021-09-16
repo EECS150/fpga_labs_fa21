@@ -318,7 +318,11 @@ The DAC should also output a signal called `next_sample` to tell the outside wor
 Now we have a DAC, but we need to give it samples to play.
 **Write a square wave sample generator** in `src/sq_wave_gen.v` which takes a 125 MHz clock and the `next_sample` signal from the DAC, and outputs the `code` for it to play.
 
-The `code` should be held constant while `next_sample` is low, and on the cycle when `next_sample` is high, the `code` can change on the next rising edge.
+`next_sample` indicates when the `sq_wave_gen` module should emit a new sample of the 440 Hz square wave.
+When `next_sample` is high, you should emit the next sample of the square wave on the `code` output on the next rising clock edge.
+When `next_sample` is low, you should freeze the state of your module since the outside world isn't requesting a new sample.
+
+<!-- The `code` should be held constant while `next_sample` is low, and on the cycle when `next_sample` is high, the `code` can change on the next rising edge. -->
 
 The square wave generator should output the codes for a 440 Hz square wave.
 *Note*: `125e6 / 1024 / 440 / 2 = 138.7 ~ 139`
