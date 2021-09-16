@@ -54,6 +54,11 @@ module debouncer_tb();
             @(posedge clk); #1;
         end
 
+        // Drop signal for a full sample period
+        glitchy_signal[0] = 0;
+        repeat(`SAMPLE_CNT_MAX + 1) @(posedge clk);
+        #1;
+
         // Bring the signal high and hold until before the saturating counter should saturate, then pull low
         glitchy_signal[0] = 1;
         repeat (`SAMPLE_CNT_MAX * (`PULSE_CNT_MAX - 1)) @(posedge clk);
