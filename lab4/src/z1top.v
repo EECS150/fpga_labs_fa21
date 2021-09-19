@@ -48,7 +48,8 @@ module z1top (
         .clk(CLK_125MHZ_FPGA),
         .next_sample(next_sample),
         .buttons(buttons_pressed),
-        .code(code)
+        .code(code),
+        .leds(LEDS[3:0])
     );
 `else
     wire [23:0] fcw;

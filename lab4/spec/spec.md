@@ -47,12 +47,21 @@ In this lab we will:
 ## Part 1: Tunable Square Wave Generator
 In lab 3, we built a simple square wave generator which can emit a fixed 440Hz square wave tone. We would like to add more functionality:
 
-- Press `button[0]` increases the output frequency. For your convenience, the frequency step doesn’t have to be linear. Make sure the step is reasonable.
-- Press `button[1]` decreases the output frequency.
-- Press button[3] resets the output frequency to 440Hz.
-<!--- You can use button[2] at will. For example, use it as volume control-->
+Support 2 modes of frequency adjustment
+  - *Linear*: increase the frequency of the square wave linearly using the `STEP` parameter to determine how much to adjust the square wave period for every button press
+  - *Exponential*: double or halve the frequency of the square wave for every button press
 
-Write a testbench for the modified `sq_wave_gen.v`. If you feel confident about your code, you can skip this part and directly program the FPGA. Make sure your code can handle overflow problems (what happens when you keep pressing the same button?)
+Use the button inputs as follows:
+  - `button[2]` to switch between the 2 modes of frequency adjustment
+  - `button[0]` to increase the square wave frequency
+  - `button[1]` to decrease the square wave frequency
+  - `button[3]` to reset the square wave frequency to 440 Hz
+
+Use your solution from lab 3 to implement this functionality in `src/sq_wave_gen.v`.
+
+Write a testbench for the modified `sq_wave_gen.v`.
+If you feel confident about your code, you can skip this part and directly program the FPGA.
+Make sure your code can handle overflow problems (what happens when you keep pressing the same button?)
 
 Save the bitstream, or you can check off this part by your TA
 

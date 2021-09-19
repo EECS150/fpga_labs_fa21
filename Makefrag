@@ -11,7 +11,7 @@ VCS                     := vcs -full64
 VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -timescale=1ns/10ps -debug
 SIM_RTL                 := $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/sim -type f -name "*.v"))
 IVERILOG                := iverilog
-IVERILOG_OPTS           := -D IVERILOG=1 -g2012 -gassertions
+IVERILOG_OPTS           := -D IVERILOG=1 -g2012 -gassertions -Wall -Wno-timescale
 VVP                     := vvp
 
 sim/%.tb: sim/%.v $(RTL)

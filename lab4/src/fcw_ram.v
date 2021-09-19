@@ -5,11 +5,9 @@ module fcw_ram(
     input wr_en,
     input [1:0] addr,
     input [23:0] d_in,
-    output [23:0] d_out
+    output reg [23:0] d_out
 );
     reg [23:0] ram [3:0];
-
-    assign d_out = (rd_en) ? ram[addr] : 24'b0;
 
     always @(posedge clk) begin
         if (rst) begin
@@ -20,5 +18,11 @@ module fcw_ram(
         end
         else if (wr_en)
             ram[addr] <= d_in;
+    end
+
+    always @(posedge clk) begin
+        if (rd_en) begin
+            d_out <= ram[addr];
+        end
     end
 endmodule
