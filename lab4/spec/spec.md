@@ -189,9 +189,9 @@ The FSM has 4 states: REGULAR_PLAY, REVERSE_PLAY, PAUSED, EDIT. Here is the stat
   <img height=500 src="./figs/fsm.png"/>
 </p>
 
-- The initial state should be **REGULAR_PLAY**. In this state, the audio should play the notes one by one. Each note should be played for **1 second**.
+- The initial state should be **REGULAR_PLAY**. In this state, the audio should play the notes one by one (440Hz -> 494Hz -> 523Hz -> 587Hz). Each note should be played for **1 second**.
 - Pressing the **play_pause button (button[0])** should transition you into the **PAUSED** state from either the REGULAR_PLAY or **REVERSE_PLAY** states. Pressing the same button while in the PAUSED state should transition the FSM to the REGULAR_PLAY state.
-- In the PAUSED state, the RAM address should be held steady at its value before the transition into PAUSED and the current note should come out of the speaker continuously. After returning to the REGRLAR_PLAY state, the RAM address should begin incrementing again from where it left off and the speaker should play the tones.
+- In the PAUSED state, the RAM address should be held steady at its value before the transition into PAUSED, and the current note should come out of the speaker continuously. After returning to the REGRLAR_PLAY state, the RAM address should begin incrementing again from where it left off.
 - You can toggle between the REGULAR_PLAY and REVERSE_PLAY states by using the **reverse button (button[1])**. In the REVERSE_PLAY state, you should decrement the RAM address by 1 rather than increment it by 1
 - **EDIT** state can only be entered when the **edit button (button[2])** is pressed in the PAUSED state. In the EDIT state, the current note should come out of the speaker continuously. Pressing button[0] will decrease the frequency of the current tune, while pressing button[1] should increase the frequency. You can decide the step at will and it doesn’t have to be linear. Pressing the edit button should transition the FSM back to the PAUSED stage.
 - Hit **reset button (button[3])** should return to REGULAR_PLAY state, and all modified tunes should be reset to the original value.
