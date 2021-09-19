@@ -1,7 +1,5 @@
 `define CLOCK_FREQ 125_000_000
 
-`define SQ_WAVE_CIRCUIT
-
 module z1top (
     input CLK_125MHZ_FPGA,
     input [3:0] BUTTONS,
@@ -29,33 +27,37 @@ module z1top (
         .out(buttons_pressed)
     );
 
-    assign AUD_SD = SWITCHES[1]; // 1 = audio enabled
-
     wire next_sample;
-    wire [9:0] code;
+    wire [9:0] code, sq_wave_code, fsm_code;
+    wire [3:0] fsm_leds, sq_wave_leds;
+    wire [23:0] fcw;
+    wire [1:0] addr;
+    wire [23:0] d_in;
+    wire wr_en;
+    wire [9:0] nco_out;
+
+    assign AUD_SD = SWITCHES[1]; // 1 = audio enabled
+    assign LEDS[3:0] = SWITCHES[0] ? fsm_leds : sq_wave_leds;
+    assign code = SWITCHES[0] ? fsm_code : sq_wave_code;
 
     dac #(
         .CYCLES_PER_WINDOW(1024)
     ) dac (
         .clk(CLK_125MHZ_FPGA),
+        .rst(buttons_pressed[3]),
         .code(code),
         .next_sample(next_sample),
         .pwm(AUD_PWM)
     );
 
-`ifdef SQ_WAVE_CIRCUIT
     sq_wave_gen gen (
         .clk(CLK_125MHZ_FPGA),
+        .rst(buttons_pressed[3]),
         .next_sample(next_sample),
-        .buttons(buttons_pressed),
-        .code(code),
-        .leds(LEDS[3:0])
+        .buttons(buttons_pressed[2:0]),
+        .code(sq_wave_code),
+        .leds(sq_wave_leds)
     );
-`else
-    wire [23:0] fcw;
-    wire [1:0] addr;
-    wire [23:0] d_in;
-    wire wr_en;
 
     fcw_ram fcw_ram(
         .clk(CLK_125MHZ_FPGA),
@@ -67,8 +69,6 @@ module z1top (
         .d_out(fcw)
     );
 
-
-    wire [9:0] nco_out;
     nco nco(
         .clk(CLK_125MHZ_FPGA),
         .rst(buttons_pressed[3]),
@@ -80,17 +80,17 @@ module z1top (
         .clk(CLK_125MHZ_FPGA),
         .next_sample(next_sample),
         .sampler_in(nco_out),
-        .sampler_out(code)
+        .sampler_out(fsm_code)
     );
 
     fsm fsm(
         .clk(CLK_125MHZ_FPGA),
-        .buttons(buttons_pressed),
+        .rst(buttons_pressed[3]),
+        .buttons(buttons_pressed[2:0]),
         .d_out(fcw),
-        .leds(LEDS[3:0]),
+        .leds(fsm_leds),
         .addr(addr),
         .wr_en(wr_en),
         .d_in(d_in)
     );
-`endif
 endmodule

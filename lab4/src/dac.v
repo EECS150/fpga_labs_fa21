@@ -3,6 +3,7 @@ module dac #(
     parameter CODE_WIDTH = $clog2(CYCLES_PER_WINDOW)
 )(
     input clk,
+    input rst,
     input [CODE_WIDTH-1:0] code,
     output next_sample,
     output reg pwm

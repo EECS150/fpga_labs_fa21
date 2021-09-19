@@ -22,7 +22,7 @@ git pull origin master
 
 ### Copy Sources From Previous Lab
 ```shell
-cp lab3/src/dac.v lab3/src/synchronizer.v lab3/src/debouncer.v lab3/src/edge_detector.v lab4/src
+cp lab3/src/synchronizer.v lab3/src/debouncer.v lab3/src/edge_detector.v lab4/src
 ```
 
 ### Reading
@@ -45,25 +45,60 @@ In this lab we will:
   - Test the circuit on FPGA
 
 ## Part 1: Tunable Square Wave Generator
-In lab 3, we built a simple square wave generator which can emit a fixed 440Hz square wave tone. We would like to add more functionality:
+In lab 3, we built a simple square wave generator which can emit a fixed 440Hz square wave tone. We would like to add more functionality.
 
-Support 2 modes of frequency adjustment
+### Implementation
+Support 2 modes of frequency adjustment:
   - *Linear*: increase the frequency of the square wave linearly using the `STEP` parameter to determine how much to adjust the square wave period for every button press
-  - *Exponential*: double or halve the frequency of the square wave for every button press
+  - *Exponential*: double or halve the frequency of the square wave for every button press (*hint*: use bitshifts)
 
 Use the button inputs as follows:
-  - `button[2]` to switch between the 2 modes of frequency adjustment
   - `button[0]` to increase the square wave frequency
   - `button[1]` to decrease the square wave frequency
-  - `button[3]` to reset the square wave frequency to 440 Hz
+  - `button[2]` to switch between the 2 modes of frequency adjustment
 
-Use your solution from lab 3 to implement this functionality in `src/sq_wave_gen.v`.
+Use `leds[0]` to display the frequency adjustment mode. The other `leds` can be set as you wish.
 
-Write a testbench for the modified `sq_wave_gen.v`.
-If you feel confident about your code, you can skip this part and directly program the FPGA.
-Make sure your code can handle overflow problems (what happens when you keep pressing the same button?)
+Since we now have a working button parser, we will use an explicit reset signal (`rst`) to make sure our registers don't hold undefined values (`X`) during simulation, and to gain the ability to reset our circuits at runtime.
+When `rst` is high on a rising clock edge, you should reset any registers in your circuit and reset the square wave frequency to 440 Hz.
 
-Save the bitstream, or you can check off this part by your TA
+**Manually copy your DAC** from `lab3/src/dac.v` to `lab4/src/dac.v`. **Use the new `rst` signal** to reset registers inside your DAC *instead of* using initial values. Example:
+```verilog
+// Initial register value - Don't do this anymore
+reg [4:0] counter = 0;
+```
+
+```verilog
+// Explicit reset - Do this
+reg [4:0] counter;
+always @(posedge clk) begin
+  if (rst) counter <= 0;
+end
+```
+
+Use your solution from lab 3 to **implement the new square wave generator** in `src/sq_wave_gen.v`.
+
+### Verification
+**Extend the testbench** in `sim/sq_wave_gen_tb.v` to verify the reset and frequency adjustment functionality of your `sq_wave_gen`.
+Make sure your RTL can handle overflow (what happens when you keep pressing the same button?)
+
+The testbench has 2 simulation threads
+  - The first one pulls samples from the `sq_wave_gen` at random intervals
+  - The second one is for you **to write by simulating button presses**. You should use the `num_samples_fetched` variable to advance time in the simulation.
+    - *Note*: the sample rate is `125e6 / 1024 = 122 kHz`
+    - *Example*: to wait for a quarter of a second, you can use the delay statement `@(num_samples_fetched == 30517)`
+
+You can use the same script from lab 3 to convert the simulation output to an audio file.
+```shell
+../scripts/audio_from_sim sim/codes.txt
+play output.wav
+```
+
+### FPGA
+Look at `src/z1top.v` to see how the new `sq_wave_gen` is connected.
+Use `SWITCHES[1]` to turn the audio output on and off, and keep `SWITCHES[0]` low to use the `sq_wave_gen` module to drive the DAC.
+
+Use `make impl` and `make program` to **put the circuit on the FPGA and test it**.
 
 ## Part 2: NCO
 The top level schematic for the rest of this lab is shown below:
@@ -174,7 +209,7 @@ Check the top-level diagram again. Make sure that all modules are connected as d
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Oct 1st, 2021)
 To checkoff for this lab, have these things ready to show the TA:
-  - Demonstrate the tunable square wave generator on the FPGA (tempo control, reset)
+  - Demonstrate the tunable square wave generator on the FPGA (reset, linear/exponential frequency adjustment)
   - Demonstrate the FSM on the FPGA (FSM with play, reverse play, pause, edit, and reset)
 No lab report this week!
 
