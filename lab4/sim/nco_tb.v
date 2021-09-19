@@ -43,11 +43,16 @@ module nco_tb();
             end
             // Thread to check next_sample
             begin
-
+		repeat (12) @(posedge clk);
+                #1;
+		assert(out == 10'b1000001100) else $error("Output should be the 2nd value (addr: 1) in ROM");
+		repeat (10) @(posedge clk);
+                #1;
+		assert(out == 10'b1010010100) else $error("Output should be the 13th value (addr: 12) in ROM");
             end
         join
 
-        $display("Test finished");
+        $display("Test passed. Remember to change back to the top 8-bit in your nco.v");
 
         `ifndef IVERILOG
             $vcdplusoff;
