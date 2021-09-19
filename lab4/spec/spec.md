@@ -163,12 +163,13 @@ initial begin
 $readmemb(“sine.bin”, sine_lut);
 end
 ```
+The ROM should be synchronous read as well.
 
 **Write code** for the phase accumulator in nco.v. Note that the PA uses the main clock and runs at 125MHz.
 
 **Uncomment** the modules in `z1top.v`. The nco is connected to a sampler, which simply passes the data to the DAC when it is ready for the new data.
 
-The input of NCO comes from a random access memory (RAM). We provide a simple RAM module with 1 read port and 1 write port. Check the `fsm_ram.v` for details. Note that the read is asynchronous while the write is synchronous. The RAM contains 4 24-bit values, which correspond to different fcws for different target frequencies. We would like to create 4 different sine waves at the following frequency:
+The input of NCO comes from a random access memory (RAM). We provide a simple RAM module with 1 read port and 1 write port. Check the `fsm_ram.v` for details. Note that both read and write are synchronous. The RAM contains 4 24-bit values, which correspond to different fcws for different target frequencies. We would like to create 4 different sine waves at the following frequency:
 - 440 Hz
 - 494 Hz
 - 523 Hz
@@ -177,7 +178,7 @@ The input of NCO comes from a random access memory (RAM). We provide a simple RA
 **Calculate** the corresponding FCW and save them as the default value of RAM.
 
 ### NCO Testbench
-We have provided a simple testbench for nco. Run it as normal. Feel free to add more test cases.
+We have provided a simple testbench for nco. To use this testbench, use the 8 LSB instead of MSB as address in the `nco.v`. Run the testbench as normal. Feel free to add more test cases. Change back to MSB when you finish this part.
 
 
 ## Part 3: FSM
