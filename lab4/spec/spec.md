@@ -200,7 +200,7 @@ The FSM has 4 states: REGULAR_PLAY, REVERSE_PLAY, PAUSED, EDIT. Here is the stat
 The LEDS[3:0] should represent the current state. We have provided some skeleton in the `fsm.v`. If you would like to use different implementations, feel free to modify it.
 
 ### FSM Testbench
-**Write a testbench** for the FSM. Make sure all state transitions are tested. Use a smaller clock frequency in the testbench to perform simulation in fewer cycles.
+**Write a testbench** for the FSM. Make sure all state transitions are tested. Use a lower clock frequency in the testbench to perform simulation in fewer cycles.
 
 ### Put Everything Together
 Check the top-level diagram again. Make sure that all modules are connected as desired. **Program the FPGA**. Plug headphones into the audio out port, press the reset button, and verify that you hear a regular play tone. Use buttons to switch between different states.
