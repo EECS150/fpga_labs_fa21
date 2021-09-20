@@ -236,7 +236,7 @@ Here is the state transition diagram:
 - In the `PAUSED` state, the RAM address should be held steady at its value before the transition into `PAUSED`, and the NCO should freeze (e.g. set `fcw` to 0). After returning to the `REGULAR_PLAY` state, the RAM address should begin incrementing again from where it left off.
 - You can toggle between the `REGULAR_PLAY` and `REVERSE_PLAY` states by using the reverse button (`button[1]`). In the `REVERSE_PLAY` state, you should decrement the RAM address by 1 rather than increment it by 1 every second.
 - The `EDIT` state can only be entered when the edit button (`button[2]`) is pressed in the `PAUSED` state. In the `EDIT` state, the current note should come out of the speaker continuously. Pressing `button[0]` will decrease the frequency of the current tone, while pressing `button[1]` should increase the frequency. You can decide the step at will and it doesn’t have to be linear. Pressing the edit button should transition the FSM back to the `PAUSED` stage.
-- Pressing the reset button (`button[3]`) should return to `REGULAR_PLAY` state, and the RAM should be reset to its original values.
+- If the FSM is reset (`rst`) it should return to the `REGULAR_PLAY` state, and the RAM should be reset to its original values.
 - If you don't press any buttons, the FSM shouldn't transition to another state.
 
 The `leds` output should track which note you are playing (one-hot).
