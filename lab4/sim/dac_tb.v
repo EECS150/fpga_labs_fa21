@@ -9,9 +9,11 @@ module dac_tb();
     // I/O
     reg [2:0] code;
     wire pwm, next_sample;
+    reg rst;
 
     dac #(.CYCLES_PER_WINDOW(8)) DUT (
         .clk(clk),
+        .rst(rst),
         .code(code),
         .pwm(pwm),
         .next_sample(next_sample)
@@ -25,6 +27,10 @@ module dac_tb();
         `ifndef IVERILOG
             $vcdpluson;
         `endif
+
+        rst = 1;
+        @(posedge clk); #1;
+        rst = 0;
 
         fork
             // Thread to drive code and check output
