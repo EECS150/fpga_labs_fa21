@@ -5,14 +5,25 @@ module fsm #(
     input clk,
     input rst,
     input [2:0] buttons,
-    input [23:0] d_out,
     output [3:0] leds,
-    output [1:0] addr,
-    output wr_en,
-    output [23:0] d_in
+    output [23:0] fcw
 );
     assign leds = 0;
     assign addr = 0;
     assign wr_en = 0;
     assign d_in = 0;
+
+    wire [1:0] addr;
+    wire wr_en, rd_en;
+    wire [23:0] d_in, d_out;
+
+    fcw_ram notes (
+        .clk(clk),
+        .rst(rst),
+        .rd_en(rd_en),
+        .wr_en(wr_en),
+        .addr(addr),
+        .d_in(d_in),
+        .d_out(d_out)
+    );
 endmodule

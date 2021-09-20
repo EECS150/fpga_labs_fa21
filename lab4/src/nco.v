@@ -2,7 +2,8 @@ module nco(
     input clk,
     input rst,
     input [23:0] fcw,
-    output [9:0] out
+    input next_sample,
+    output [9:0] code
 );
-    assign out = 0;
+    assign code = 0;
 endmodule

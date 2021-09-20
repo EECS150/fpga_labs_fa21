@@ -60,11 +60,11 @@ module sq_wave_gen_tb();
             begin
                 // TODO: play with the buttons to adjust the output frequency
                 // hint: use the num_samples_fetched integer to wait for
-                // X samples to be fetched by the sampling thread
+                // X samples to be fetched by the sampling thread, example below
                 @(num_samples_fetched == 500);
-                $display("At 500 %t", $time);
+                $display("Fetched 500 samples at time %t", $time);
                 @(num_samples_fetched == 5000);
-                $display("At 5000 %t", $time);
+                $display("Fetched 5000 samples at time %t", $time);
             end
         join
 

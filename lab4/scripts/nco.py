@@ -125,7 +125,8 @@ if __name__ == "__main__":
             print('{0:010b}'.format(val))
     if args.sine_plot:
         import matplotlib.pyplot as plt
-        sine_lut = [float(x) for x in nco.sine_lut_fixed]
+        #sine_lut = [float(x) for x in nco.sine_lut_fixed]
+        sine_lut = [float(x) for x in nco.sine_lut_int]
         plt.plot(sine_lut, '.')
         plt.show()
 
