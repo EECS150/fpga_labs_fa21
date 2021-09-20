@@ -239,22 +239,31 @@ Here is the state transition diagram:
 - Pressing the reset button (`button[3]`) should return to `REGULAR_PLAY` state, and the RAM should be reset to its original values.
 - If you don't press any buttons, the FSM shouldn't transition to another state.
 
-The `leds` output should represent the current state.
-We have provided some skeleton in the `fsm.v`. If you would like to use different implementations, feel free to modify it.
+The `leds` output should track which note you are playing (one-hot).
+The `leds_state` output should represent the state your FSM is in using 2 bits.
+
+We have provided a skeleton in `src/fsm.v`.
+If you would like to use a different implementation, feel free to modify it.
 
 ### FSM Testbench
-**Write a testbench** for the FSM. Make sure all state transitions are tested. Use a lower clock frequency in the testbench to perform simulation in fewer cycles.
+We have provided an FSM testbench skeleton in `sim/fsm_tb.v`.
+You should edit the second thread to simulate pressing buttons and verifying the FSM behaves correctly.
+Make sure you test all the state transitions.
+
+Just like the other testbenches, you can convert the samples of the NCO to an audio file:
+
+```shell
+../scripts/audio_from_sim sim/fsm_codes.txt
+play output.wav
+```
 
 ### Put Everything Together
-Check the top-level diagram again. Make sure that all modules are connected as desired. **Program the FPGA**. Plug headphones into the audio out port, press the reset button, and verify that you hear a regular play tone. Use buttons to switch between different states.
+Check the top-level diagram again.
+Make sure that all modules are connected as desired in `src/z1top.v` (remove the `fcw` hardcoding from the previous part).
 
-## To fix
-- System-level diagram
-  - put the RAM inside the FSM
-  - remove the sampler
-- FSM diagram
-  - remove the reset button transitions
-  - add play/paused button transition from reverse play to paused
+**Program the FPGA**.
+Plug headphones into the audio out port, press the reset button, and verify that you hear the notes in the sequencer RAM play one after the other.
+Use the buttons to switch between different states.
 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, Friday Oct 1st, 2021)

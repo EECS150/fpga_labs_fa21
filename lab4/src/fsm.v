@@ -6,12 +6,12 @@ module fsm #(
     input rst,
     input [2:0] buttons,
     output [3:0] leds,
-    output [23:0] fcw
+    output [23:0] fcw,
+    output [1:0] leds_state
 );
     assign leds = 0;
-    assign addr = 0;
-    assign wr_en = 0;
-    assign d_in = 0;
+    assign fcw = 0;
+    assign leds_state = 0;
 
     wire [1:0] addr;
     wire wr_en, rd_en;

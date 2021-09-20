@@ -8,8 +8,6 @@ module z1top (
     output AUD_PWM,
     output AUD_SD
 );
-    assign LEDS[5:4] = 2'b11;
-
     // Button parser test circuit
     // Sample the button signal every 500us
     localparam integer B_SAMPLE_CNT_MAX = $rtoi(0.0005 * `CLOCK_FREQ);
@@ -80,6 +78,7 @@ module z1top (
         .rst(rst),
         .buttons(fsm_buttons),
         .leds(fsm_leds),
+        .leds_state(LEDS[5:4]),
         .fcw(fcw)
     );
 endmodule
