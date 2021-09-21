@@ -1,6 +1,6 @@
 module fsm #(
-    parameter CLOCK_FREQ = 125_000_000,
-    parameter WIDTH = $clog2(CLOCK_FREQ)
+    parameter CYCLES_PER_SECOND = 125_000_000,
+    parameter WIDTH = $clog2(CYCLES_PER_SECOND)
 )(
     input clk,
     input rst,

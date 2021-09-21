@@ -250,15 +250,11 @@ If you would like to use a different implementation, feel free to modify it.
 
 ### FSM Testbench
 We have provided an FSM testbench skeleton in `sim/fsm_tb.v`.
-You should edit the second thread to simulate pressing buttons and verifying the FSM behaves correctly.
+
+You should **edit it** to simulate pressing buttons and verifying the FSM behaves correctly.
 Make sure you test all the state transitions.
 
-Just like the other testbenches, you can convert the samples of the NCO to an audio file:
-
-```shell
-../scripts/audio_from_sim sim/fsm_codes.txt
-play output.wav
-```
+You can override `CYCLES_PER_SECOND` when instantiating `fsm` to speed up simulation (as before).
 
 ### Put Everything Together
 Check the top-level diagram again.
