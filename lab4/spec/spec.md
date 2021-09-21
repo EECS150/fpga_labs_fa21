@@ -77,6 +77,7 @@ end
 ```
 
 Use your solution from lab 3 to **implement the new square wave generator** in `src/sq_wave_gen.v`.
+You should support a square wave frequency range from 20 Hz to 10 kHz.
 
 ### Verification
 **Extend the testbench** in `sim/sq_wave_gen_tb.v` to verify the reset and frequency adjustment functionality of your `sq_wave_gen`.
@@ -165,7 +166,7 @@ python scripts/nco.py --sine-lut > sine.bin
 
 We can use the file to initialize a ROM inside `src/nco.v`. Use `$readmemb()` to load a ROM with initial contents like this:
 ```verilog
-reg [9:0] sine_lut [255:0];
+reg [9:0] sine_lut [0:255];
 initial begin
     $readmemb("sine.bin", sine_lut);
 end
@@ -187,6 +188,8 @@ You can use the same script to convert the sample outputs to an audio file.
 ../scripts/audio_from_sim sim/nco_codes.txt
 play output.wav
 ```
+
+Verify the simulated output sounds like a [pure sine tone at 440 Hz](https://www.szynalski.com/tone-generator/).
 
 ### NCO on FPGA
 Look through `src/z1top.v` for the instantiation of the `nco`.

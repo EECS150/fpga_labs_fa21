@@ -76,7 +76,7 @@ module nco_tb();
                 @(num_samples_fetched == 2);
                 assert(code == 10'b1000011001) else $error("Code after 2 samples should be LUT[2]");
                 @(num_samples_fetched == 10);
-                assert(code == 10'b1001110000) else $error("Code after 10 samples should be LUT[10]");
+                assert(code == 10'b1001111100) else $error("Code after 10 samples should be LUT[10]");
             end
         join
 
