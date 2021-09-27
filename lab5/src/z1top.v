@@ -31,7 +31,7 @@ module z1top #(
     assign AUD_SD = 1'b0;
 
     wire rst;
-    assign rst = buttons_pressed[3];
+    assign rst = buttons_pressed[0];
 
     reg [7:0] data_in;
     wire [7:0] data_out;

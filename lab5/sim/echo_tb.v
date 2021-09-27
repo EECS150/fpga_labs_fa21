@@ -27,7 +27,7 @@ module echo_tb();
     .B_PULSE_CNT_MAX(5)
   ) DUT (
     .CLK_125MHZ_FPGA(clk),
-    .BUTTONS({rst, 3'b0}),
+    .BUTTONS({3'b0, rst}),
     .SWITCHES(2'b0),
     .LEDS(),
     .AUD_PWM(),
