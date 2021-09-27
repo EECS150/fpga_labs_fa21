@@ -3,8 +3,8 @@
 `define CLOCK_PERIOD 8
 `define CLOCK_FREQ 125_000_000
 `define BAUD_RATE 115_200
-`define B_SAMPLE_COUNT_MAX 5
-`define B_PULSE_COUNT_MAX 5
+`define B_SAMPLE_CNT_MAX 5
+`define B_PULSE_CNT_MAX 5
 
 /*
     This is a system level testbench that instantiates z1top (the FPGA design) and an off-chip UART which communicates
@@ -30,8 +30,8 @@ module simple_echo_tb();
     z1top #(
         .CLOCK_FREQ(`CLOCK_FREQ),
         .BAUD_RATE(`BAUD_RATE),
-        .B_SAMPLE_COUNT_MAX(`B_SAMPLE_COUNT_MAX),
-        .B_PULSE_COUNT_MAX(`B_SAMPLE_COUNT_MAX)
+        .B_SAMPLE_CNT_MAX(`B_SAMPLE_CNT_MAX),
+        .B_PULSE_CNT_MAX(`B_PULSE_CNT_MAX)
     ) top (
         .CLK_125MHZ_FPGA(clk),
         .BUTTONS({3'd0, reset}),
