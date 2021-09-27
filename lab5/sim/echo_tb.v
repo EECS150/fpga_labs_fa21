@@ -137,7 +137,7 @@ module echo_tb();
     rst = 1'b1;
 
     // Hold reset for a while
-    repeat (10) @(posedge clk);
+    repeat (40) @(posedge clk);
 
     rst = 1'b0;
 
