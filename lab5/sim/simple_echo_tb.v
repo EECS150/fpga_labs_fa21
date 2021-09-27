@@ -16,7 +16,7 @@
     and sends it back to the off-chip UART using the on-chip UART's transmitter. We expect that the received character by the
     off-chip UART at the end of this test will be a lower case ASCII 'a'.
 */
-module echo_testbench();
+module simple_echo_tb();
     // Generate 125 MHz clock
     reg clk = 0;
     always #(`CLOCK_PERIOD/2) clk = ~clk;
@@ -72,8 +72,8 @@ module echo_testbench();
             $vcdpluson;
         `endif
         `ifdef IVERILOG
-            $dumpfile("echo_testbench.fst");
-            $dumpvars(0,echo_testbench);
+            $dumpfile("simple_echo_tb.fst");
+            $dumpvars(0, simple_echo_tb);
         `endif
         reset = 1'b0;
         data_in = 8'h41; // Represents the character 'A' in ASCII
