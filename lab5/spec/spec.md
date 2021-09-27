@@ -222,6 +222,8 @@ Connect the PMOD module to the **top** row of the PMOD A port on the Pynq, and c
 </p>
 
 ### Hello World
+Reset the UART circuit on your FPGA with `buttons[0]`.
+
 On your workstation, run:
 ```shell
 screen $SERIALTTY 115200
