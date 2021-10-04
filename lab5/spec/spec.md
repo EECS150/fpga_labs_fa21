@@ -252,7 +252,7 @@ You can also reboot the computer to clear all active `screen` sessions.
 
 
 ## Lab Deliverables
-### Lab Checkoff (due: 11AM, October 8th, 2021)
+### Lab Checkoff (due: 11AM, October 15th, 2021)
 To checkoff for this lab, have these things ready to show the TA:
   - Go through the UART simulation results and show that your UART behaves as expected. What do the testbenches do?
   - Demonstrate that you can type characters rapidly on the keyboard and have them echoed back in your `screen` session
