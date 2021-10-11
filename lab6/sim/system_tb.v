@@ -8,8 +8,11 @@
 
 `define CLOCK_FREQ 125_000_000
 `define BAUD_RATE 115_200
-`define CYCLES_PER_SECOND 100
+// Number of cycles to send one character using the UART
 `define CYCLES_PER_CHAR ((`CLOCK_FREQ / `BAUD_RATE) * 10)
+// Make this a little longer than the time to send a character over UART so
+// the FIFO will buffer UART characters
+`define CYCLES_PER_SECOND (`CYCLES_PER_CHAR * 6)
 
 module system_tb();
     reg clk = 0;
@@ -94,18 +97,37 @@ module system_tb();
         repeat (40) @(posedge clk); #1;
         rst = 1'b0;
 
-        // Send a character through the off_chip_uart
-        ua_send("z");
+        // Send characters through the off_chip_uart
+        fork
+            // Host -> FPGA sending thread
+            begin
+                ua_send("z");
+                ua_send("x");
+                ua_send("c");
+            end
+            // FPGA checking thread
+            begin
+                // Initially the fcw should be 0
+                // assert(top.nco.fcw == 0);
 
-        // TODO: set CYCLES_PER_SECOND to a reasonable value
+                // It takes `CYCLES_PER_CHAR cycles for the UART to send the
+                // FPGA one character
+                repeat (`CYCLES_PER_CHAR) @(posedge clk);
 
-        // TODO: Check the FCW is what you expect
-        assert(top.nco.fcw == 0);
-        repeat (`CYCLES_PER_CHAR) @(posedge clk);
-        repeat (10) @(posedge clk); // let the received character get into the piano
-        // Example: assert(top.nco.fcw == "WHAT YOU EXPECT")
+                // Wait a few more cycles for the piano to fetch the character
+                // from the RX FIFO
+                repeat (10) @(posedge clk);
 
-        // TODO: Add some more stuff to test the piano
+                // Check the FCW is what you expect
+                // assert(top.nco.fcw == WHAT YOU EXPECT)
+
+                // Wait for the next note to begin playing
+                repeat (`CYCLES_PER_SECOND) @(posedge clk);
+
+                // Check the FCW is what you expect
+                // assert(top.nco.fcw == WHAT YOU EXPECT)
+            end
+        join
         `ifndef IVERILOG
             $vcdplusoff;
         `endif
@@ -113,7 +135,7 @@ module system_tb();
     end
 
     initial begin
-        repeat (60000) @(posedge clk);
+        repeat (`CYCLES_PER_CHAR + `CYCLES_PER_SECOND * 4) @(posedge clk);
         $error("Timing out");
         $fatal();
     end
