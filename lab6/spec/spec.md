@@ -188,6 +188,17 @@ You will want to check that the `fcw` being sent to the NCO is correct; you shou
 assert(top.nco.fcw == 24'dxxxxx);
 ```
 
+Note, you can get the integer corresponding to a ASCII character in Python (and vice versa):
+```python
+>>> ord('z')
+122
+>>> chr(122)
+'z'
+```
+
+You will also want to check that the characters being sent to `z1top` are being echoed back correctly.
+Use the `off_chip_uart`'s `data_out, data_out_valid, data_out_ready` interface to do this.
+
 ### FPGA Testing
 Generate a bitstream and program the FPGA as usual.
 Read the synthesis and implementation reports (`build/synth/synth.log`) to see if there are any unexpected warnings.

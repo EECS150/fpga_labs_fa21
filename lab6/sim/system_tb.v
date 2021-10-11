@@ -9,6 +9,7 @@
 `define CLOCK_FREQ 125_000_000
 `define BAUD_RATE 115_200
 `define CYCLES_PER_SECOND 100
+`define CYCLES_PER_CHAR ((`CLOCK_FREQ / `BAUD_RATE) * 10)
 
 module system_tb();
     reg clk = 0;
@@ -53,7 +54,7 @@ module system_tb();
         .data_in(data_in),
         .data_in_valid(data_in_valid),
         .data_in_ready(data_in_ready),
-        .data_out(), // We aren't using the receiver of the off-chip UART, only the transmitter
+        .data_out(),
         .data_out_valid(),
         .data_out_ready(1'b0),
         .serial_in(FPGA_SERIAL_TX),
@@ -93,12 +94,15 @@ module system_tb();
         repeat (40) @(posedge clk); #1;
         rst = 1'b0;
 
-        // Send a few characters through the off_chip_uart
+        // Send a character through the off_chip_uart
         ua_send("z");
 
         // TODO: set CYCLES_PER_SECOND to a reasonable value
 
         // TODO: Check the FCW is what you expect
+        assert(top.nco.fcw == 0);
+        repeat (`CYCLES_PER_CHAR) @(posedge clk);
+        repeat (10) @(posedge clk); // let the received character get into the piano
         // Example: assert(top.nco.fcw == "WHAT YOU EXPECT")
 
         // TODO: Add some more stuff to test the piano
