@@ -3,7 +3,6 @@ module variable_length_piano (
     input rst,
 
     input [2:0] buttons,
-    input [1:0] switches,
     output [5:0] leds,
 
     output [7:0] ua_tx_din,
