@@ -283,13 +283,14 @@ module fifo_tb();
         write_start = 1;
         write_idx = 0;
         for (i = 0; i < num_items; i = i + 1) begin
-          write_to_fifo(1'b0, test_values[write_idx]);
+          write_to_fifo(test_values[write_idx], 1'b0);
           repeat (write_delay) @(posedge clk);
           write_idx = write_idx + 1;
         end
         write_start = 0;
       end
       begin
+        repeat((write_delay + 1)) @(posedge clk); #1;
         read_start = 1;
         read_idx = 0;
         for (j = 0; i < num_items; j = j + 1) begin
