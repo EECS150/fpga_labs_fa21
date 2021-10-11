@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import wave
 import random
 import struct
@@ -78,10 +80,9 @@ piano_output_file = open(output_file, 'w')
 for ascii_index in range(256):
     if chr(ascii_index) in note_map:
         note_freq = note_map[chr(ascii_index)]
-        note_tone_switch_period = round(float(clock_freq) / float(note_freq) / 2.0)
-        piano_output_file.write(str(int(note_tone_switch_period)) + "\n")
+        note_fcw = (note_freq / (125e6 / 1024)) * (2**24)
+        piano_output_file.write(str(int(round(note_fcw))) + "\n")
     else:
         piano_output_file.write("0\n")
 
 piano_output_file.close()
-
