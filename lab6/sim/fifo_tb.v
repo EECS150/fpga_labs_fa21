@@ -115,6 +115,14 @@ module fifo_tb();
   integer read_start = 0;
 
   initial begin: TB
+    `ifndef IVERILOG
+        $vcdpluson;
+    `endif
+    `ifdef IVERILOG
+        $dumpfile("fifo_tb.fst");
+        $dumpvars(0, fifo_tb);
+    `endif
+
     $display("This testbench was run with these params:");
     $display("CLK_PERIOD = %d, WIDTH = %d, DEPTH = %d", `CLK_PERIOD, WIDTH, DEPTH);
 
