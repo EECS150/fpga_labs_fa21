@@ -53,26 +53,24 @@ module system_tb();
         .data_in(data_in),
         .data_in_valid(data_in_valid),
         .data_in_ready(data_in_ready),
-        .data_out(),
+        .data_out(), // We aren't using the receiver of the off-chip UART, only the transmitter
         .data_out_valid(),
         .data_out_ready(1'b0),
         .serial_in(FPGA_SERIAL_TX),
         .serial_out(FPGA_SERIAL_RX)
     );
 
-    task send_character;
-        input [7:0] char;
-        data_in = char;
-        data_in_valid = 1'b1;
-        #1;
-        if (data_in_ready) begin
-            @(posedge clk); #1;
-            data_in_valid = 1'b0;
-        end else begin
+    task ua_send;
+        input [7:0] data;
+        begin
             while (!data_in_ready) begin
-                @(posedge clk); #1;
+                @(posedge clk);
             end
-            data_in_valid = 1'b0;
+            #1;
+            data_in_valid = 'b1;
+            data_in = data;
+            @(posedge clk); #1;
+            data_in_valid = 'b0;
         end
     endtask
 
@@ -96,7 +94,7 @@ module system_tb();
         rst = 1'b0;
 
         // Send a few characters through the off_chip_uart
-        send_character("z");
+        ua_send("z");
 
         // TODO: set CYCLES_PER_SECOND to a reasonable value
 
