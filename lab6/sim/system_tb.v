@@ -122,10 +122,13 @@ module system_tb();
                 // assert(top.nco.fcw == WHAT YOU EXPECT)
 
                 // Wait for the next note to begin playing
-                repeat (`CYCLES_PER_SECOND) @(posedge clk);
+                // recall note_length = 1/5th of a second by default
+                repeat (`CYCLES_PER_SECOND / 5 + 10) @(posedge clk);
 
                 // Check the FCW is what you expect
                 // assert(top.nco.fcw == WHAT YOU EXPECT)
+
+                // TODO: add more stimulus and assertions, adjust note_length
             end
         join
         `ifndef IVERILOG
