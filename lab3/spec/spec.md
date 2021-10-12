@@ -368,3 +368,4 @@ This lab is the result of the work of many EECS151/251 GSIs over the years inclu
 - Sp20: Tan Nguyen
 - Fa20: Charles Hong, Kareem Ahmad, Zhenghan Lin
 - Sp21: Sean Huang, Tan Nguyen
+- Fa21: Vighnesh Iyer, Charles Hong, Zhenghan Lin, Alisha Menon
