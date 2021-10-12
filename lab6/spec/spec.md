@@ -99,6 +99,20 @@ Note that the data on `dout` only changes *after the rising edge* when `rd_en` i
   <img height=300 src="./figs/fifo_timing.svg" />
 </p>
 
+<!--
+https://wavedrom.com/editor.html
+{signal: [
+  {name: 'clk', wave: 'p........'},
+  {name: 'wr_en', wave: '01.0.....'},
+  {name: 'din', wave: 'x44x.....', data: ['a', 'b']},
+  {name: 'full', wave: '0..1.0...'},
+  {},
+  {name: 'dout', wave: 'xxxxx5.5.', data: ['a', 'b']},
+  {name: 'empty', wave: '1.0....1.'},
+  {name: 'rd_en', wave: '0...1010.'}
+]}
+-->
+
 ### FIFO Testing
 We have provided a testbench in `sim/fifo_tb.v`.
 
