@@ -66,7 +66,7 @@ Here is a block diagram of the FIFO you should create from page 103 of the [Xili
   <img src="./figs/sync_fifo_diagram.png" height=300 />
 </p>
 
-The interface of our FIFO will contain a subset of the signals enumerated in the diagram above.
+The interface of our FIFO will contain a *subset* of the signals enumerated in the diagram above.
 
 ### FIFO Interface
 Look at the FIFO skeleton in `src/fifo.v`.
@@ -86,27 +86,18 @@ The FIFO write interface consists of:
   - `output full` - When this signal is high, the FIFO is full.
 
 The FIFO read interface consists of:
-  - `input rd_en` - When this signal is high, on the rising edge of the clock, the FIFO should output the data indexed by the read pointer on `dout`
-  - `output [WIDTH-1:0] dout` - The data that was read from the FIFO after the rising edge on which `rd_en` was asserted
+  - `input rd_en` - When this signal is high, on the rising edge of the clock, the FIFO should output the data indexed by the read pointer on `dout`.
+  - `output [WIDTH-1:0] dout` - The data that was read from the FIFO after the rising edge on which `rd_en` was asserted.
   - `output empty` - When this signal is high, the FIFO is empty.
 
 ### FIFO Timing
 The FIFO that you design should conform to the specs above.
-To further, clarify here are the read and write timing diagrams from the [Xilinx FIFO IP Manual](https://www.xilinx.com/support/documentation/ip_documentation/fifo_generator_ug175.pdf).
-These diagrams can be found on pages 105 and 107.
-Your FIFO should behave similarly.
+Here is a timing diagram for a *2-entry* FIFO.
+Note that the data on `dout` only changes *after the rising edge* when `rd_en` is high.
 
 <p align=center>
-  <img height=200 src="./figs/sync_fifo_write_operation.png" />
+  <img height=300 src="./figs/fifo_timing.svg" />
 </p>
-Your FIFO doesn't need to support the `ALMOST_FULL`, `WR_ACK`, or `OVERFLOW` signals on the write interface.
-**TODO TODO TODO REPLACE WITH WAVEDROM DIAGRAM**
-
-<p align=center>
-  <img height=200 src="./figs/sync_fifo_read_operation.png" />
-</p>
-Your FIFO doesn't need to support the `VALID`, `UNDERFLOW`, or `ALMOST_EMPTY` signals on the read interface.
-**TODO TODO TODO REPLACE WITH WAVEDROM DIAGRAM**
 
 ### FIFO Testing
 We have provided a testbench in `sim/fifo_tb.v`.
@@ -133,7 +124,7 @@ Here are a few tests to try:
       This will require you to use fork/join to run two threads in parallel.
       Make sure that no data gets corrupted.
 
-## Building a Fixed Length Piano
+## Building a Fixed Note Length Piano
 The piano interfaces the UART with the NCO + DAC.
 Its job is to fetch notes sent from the UART, convert them to a `fcw`, and send them to the `nco` (and `dac`) for a **fixed amount of time**.
 
@@ -211,7 +202,9 @@ Once you put your design on the FPGA you can send data to the on-chip UART by us
 The piano keys are mapped such that `z` through `<` go from C3 to C4 (middle C) and `q` through `i` go from C4 to C5.
 Holding down shift moves the lower row's octave down and the upper row's octave up.
 
-You can use the buttons to change the `note_length` of your piano.
+Use `buttons[0]` to reset the design.
+Use `buttons[1]` and `buttons[2]` to change the `note_length` of your piano.
+
 You should test the case where you make the `note_length` long, and fill up your UART FIFO by typing really fast.
 Then watch your FIFO drain slowly as each note is played for `note_length` time.
 
