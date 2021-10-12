@@ -60,7 +60,7 @@ A comparison between the values of the read and write pointers indicate whether 
 You can choose to implement this logic as you please.
 The `Electronics` section of the [FIFO Wikipedia article](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)) will likely aid you in creating your FIFO.
 
-Here is a block diagram of the FIFO you should create from page 103 of the [Xilinx FIFO IP Manual](https://www.xilinx.com/support/documentation/ip_documentation/fifo_generator_ug175.pdf).
+Here is a block diagram of the FIFO similar to the one you should create, from page 103 of the [Xilinx FIFO IP Manual](https://www.xilinx.com/support/documentation/ip_documentation/fifo_generator_ug175.pdf).
 
 <p align=center>
   <img src="./figs/sync_fifo_diagram.png" height=300 />
