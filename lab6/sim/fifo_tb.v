@@ -103,7 +103,7 @@ module fifo_tb();
     end
   endtask
 
-  integer i, j;
+  integer i;
   integer num_mismatches;
   integer num_items = 50;
   integer write_delay, read_delay;
@@ -152,7 +152,7 @@ module fifo_tb();
       $error("Failure: After reset, the FIFO is full. full = %b", full);
     end
 
-    @(posedge clk);
+    @(posedge clk); #1;
 
     // Begin pushing data into the FIFO with a 1 cycle delay in between each write operation
     for (i = 0; i < DEPTH - 1; i = i + 1) begin
@@ -168,7 +168,7 @@ module fifo_tb();
       end
 
       // Insert single-cycle delay between each write
-      @(posedge clk);
+      @(posedge clk); #1;
     end
 
     // Perform the final write
@@ -180,7 +180,7 @@ module fifo_tb();
     end
 
     // Cycle the clock, the FIFO should still be full!
-    repeat (10) @(posedge clk);
+    repeat (10) @(posedge clk); #1;
     // The FIFO should still be full!
     if (full !== 1'b1 || empty === 1'b1) begin
       $error("Failure: Cycling the clock while the FIFO is full shouldn't change its state! full = %b, empty = %b", full, empty);
@@ -195,7 +195,7 @@ module fifo_tb();
       end
     end
 
-    repeat (5) @(posedge clk);
+    repeat (5) @(posedge clk); #1;
 
     // Read from the FIFO one by one with a 1 cycle delay in between reads
     for (i = 0; i < DEPTH - 1; i = i + 1) begin
@@ -209,7 +209,7 @@ module fifo_tb();
         $error("Failure: FIFO was full as its being drained");
       end
 
-      @(posedge clk);
+      @(posedge clk); #1;
     end
 
     // Perform the final read
@@ -220,7 +220,7 @@ module fifo_tb();
     end
 
     // Cycle the clock and perform the same checks
-    repeat (10) @(posedge clk);
+    repeat (10) @(posedge clk); #1;
     if (full !== 1'b0 || empty !== 1'b1) begin
       $error("Failure: FIFO should be empty after it has been drained. full = %b, empty = %b", full, empty);
     end
@@ -272,6 +272,7 @@ module fifo_tb();
       $fatal();
 
     repeat (10) @(posedge clk);
+    assert(empty == 1'b1);
 
     // Write and Read from FIFO for some number of items concurrently
     // Test with different combinations of the following variables
@@ -290,19 +291,20 @@ module fifo_tb();
         write_start = 0;
       end
       begin
-        repeat((write_delay + 1)) @(posedge clk); #1;
+        repeat((write_delay + 2)) @(posedge clk);
         read_start = 1;
         read_idx = 0;
-        for (j = 0; i < num_items; j = j + 1) begin
+        while (!empty) begin
           read_from_fifo(1'b0, received_values[read_idx]);
           repeat (read_delay) @(posedge clk);
           read_idx = read_idx + 1;
+          #1;
         end
         read_start = 0;
       end
     join
 
-    repeat (3) @(posedge clk);
+    repeat (10) @(posedge clk);
 
     num_mismatches = 0;
     for (i = 0; i < num_items; i = i + 1) begin
