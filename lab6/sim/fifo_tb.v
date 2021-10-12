@@ -62,6 +62,7 @@ module fifo_tb();
     input [WIDTH-1:0] write_data;
     input violate_interface;
     begin
+      #1;
       // If we want to not violate the interface agreement, if we are already full, don't write
       if (!violate_interface && full) begin
         wr_en = 1'b0;
@@ -88,6 +89,7 @@ module fifo_tb();
     input violate_interface;
     output [WIDTH-1:0] read_data;
     begin
+      #1;
       if (!violate_interface && empty) begin
         rd_en = 1'b0;
       end
@@ -152,7 +154,7 @@ module fifo_tb();
       $error("Failure: After reset, the FIFO is full. full = %b", full);
     end
 
-    @(posedge clk); #1;
+    @(posedge clk);
 
     // Begin pushing data into the FIFO with a 1 cycle delay in between each write operation
     for (i = 0; i < DEPTH - 1; i = i + 1) begin
@@ -168,7 +170,7 @@ module fifo_tb();
       end
 
       // Insert single-cycle delay between each write
-      @(posedge clk); #1;
+      @(posedge clk);
     end
 
     // Perform the final write
@@ -180,7 +182,7 @@ module fifo_tb();
     end
 
     // Cycle the clock, the FIFO should still be full!
-    repeat (10) @(posedge clk); #1;
+    repeat (10) @(posedge clk);
     // The FIFO should still be full!
     if (full !== 1'b1 || empty === 1'b1) begin
       $error("Failure: Cycling the clock while the FIFO is full shouldn't change its state! full = %b, empty = %b", full, empty);
@@ -195,7 +197,7 @@ module fifo_tb();
       end
     end
 
-    repeat (5) @(posedge clk); #1;
+    repeat (5) @(posedge clk);
 
     // Read from the FIFO one by one with a 1 cycle delay in between reads
     for (i = 0; i < DEPTH - 1; i = i + 1) begin
@@ -209,7 +211,7 @@ module fifo_tb();
         $error("Failure: FIFO was full as its being drained");
       end
 
-      @(posedge clk); #1;
+      @(posedge clk);
     end
 
     // Perform the final read
@@ -220,7 +222,7 @@ module fifo_tb();
     end
 
     // Cycle the clock and perform the same checks
-    repeat (10) @(posedge clk); #1;
+    repeat (10) @(posedge clk);
     if (full !== 1'b0 || empty !== 1'b1) begin
       $error("Failure: FIFO should be empty after it has been drained. full = %b, empty = %b", full, empty);
     end
@@ -298,7 +300,6 @@ module fifo_tb();
           read_from_fifo(1'b0, received_values[read_idx]);
           repeat (read_delay) @(posedge clk);
           read_idx = read_idx + 1;
-          #1;
         end
         read_start = 0;
       end
