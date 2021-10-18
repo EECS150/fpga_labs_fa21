@@ -222,7 +222,9 @@ Use `buttons[1]` and `buttons[2]` to change the `note_length` of your piano.
 You should test the case where you make the `note_length` long, and fill up your UART FIFO by typing really fast.
 Then watch your FIFO drain slowly as each note is played for `note_length` time.
 
-## Variable Note Length Piano
+## Extra Credit: Variable Note Length Piano
+**The variable note length piano is for extra credit; it is optional.**
+
 We would like to set the length of each note based on how long each key is pressed, instead of having a fixed note length.
 We have provided a Python script that captures keyboard keyup/keydown events and translates them into 2 UART frames (a packet) indicating whether a note should begin playing or finish playing:
 
@@ -258,8 +260,8 @@ You can use the same keys as before.
 To checkoff for this lab, have these things ready to show the TA:
   - Show the system-level testbench you wrote and its methodology for testing your piano's functionality
       - Show the output waveform of your testbench and explain how data moves through your system.
-  - Demonstrate the variable note length piano working on the FPGA.
   - Demonstrate the fixed note length piano. Prove the existence of your UART RX and TX FIFOs by making the `note_length` long, pressing multiple keys in quick succession, filling the RX FIFO, and seeing the notes drain out slowly into the piano.
+  - **Extra credit:** Demonstrate the variable note length piano working on the FPGA.
 
 ## Appendix
 ### Testing Locally (on your laptop)
