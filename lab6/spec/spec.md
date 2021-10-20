@@ -236,6 +236,7 @@ If you get a key release packet that has a matching `character` with the note be
 
 If you're playing a note and you get another key press packet, you should throw it away.
 If you're playing a note and get a key release packet for a different `character`, you should throw it away.
+*Note*: these scenarios aren't exercised by the `piano` script, but your hardware should still function if they happen.
 
 You don't have to drive any characters into the UART TX in this part.
 Drive an LED indicating when a note is being played.
@@ -254,6 +255,13 @@ When `SWITCHES[1]` is low, direct the FIFO inputs/outputs and `fcw` to the fixed
 Program it on the FPGA as usual.
 Then run `../scripts/piano` which captures keyboard events and sends them to the FPGA via UART using the packetization described.
 You can use the same keys as before.
+
+The `piano` script works as follows:
+- Once you press a key, it will be registered as the `active_key` and a key press packet will be sent to the FPGA.
+- If you press another key while still holding down a previous key, the script will send a key release packet for the previous key and send a key press packet for the new key being pressed. The newly pressed key wll be registered as the `active_key`.
+- If you release a key, and if the released key matches the `active_key`, a key release packet will be sent.
+
+This logic allows you to rapidly press keys and have instant feedback from the piano.
 
 ## Lab Deliverables
 ### Lab Checkoff (due: 11AM, October 22nd, 2021)
